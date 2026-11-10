@@ -416,9 +416,10 @@ function B.multiTarget(page)
     toggle(page,place,'mtLocked',L.mtLocked,nil,mtBool('locked'))
     local dots=display:Card(L.mtCardDots,L.mtDotsHelp,nil,I.timer)
     segment(page,dots,'mtDotStyle',nil,{{value='hud',label='Warlock HUD',tip=L.mtStyleHudHelp,glyph='icons'},
-        {value='equal',label=L.mtStyleEqual,tip=L.mtStyleEqualHelp,glyph='bars'}},mtValue('dotStyle'))
+        {value='equal',label=L.mtStyleEqual,tip=L.mtStyleEqualHelp,glyph='bars'},
+        {value='kit',label=L.mtStyleKit,tip=L.mtStyleKitHelp,glyph='bars'}},mtValue('dotStyle'))
     slider(page,dots,'mtBarHeight',L.mtBarHeight,8,30,1,{function() return p().barHeight end,
-        function(v) p().barHeight=math.floor(v); apply() end},px,function() return p().dotStyle=='equal' end)
+        function(v) p().barHeight=math.floor(v); apply() end},px,function() return p().dotStyle~='hud' end)
     page.mtPresentationState=T.text(dots,11,T.c.muted)
     page.mtPresentationState:SetWidth(dots.inner); page.mtPresentationState:SetWordWrap(true)
     dots:Add(page.mtPresentationState,30,6)
@@ -519,7 +520,7 @@ end
 function B.kit(page)
     local layoutSec=newSection(page,'layout')
     local shape=layoutSec:Card(L.kitLayout,nil,nil,I.move)
-    segment(page,shape,'kit.layout',nil,{{value='circle',label=L.kit_circle,glyph='circle'},{value='horizontal',label=L.kit_horizontal,glyph='horizontal'},
+    segment(page,shape,'kit.layout',nil,{{value='orb',label=L.kit_orb,glyph='circle'},{value='circle',label=L.kit_circle,glyph='circle'},{value='horizontal',label=L.kit_horizontal,glyph='horizontal'},
         {value='vertical',label=L.kit_vertical,glyph='vertical'},{value='grid',label=L.kit_grid,glyph='grid'},{value='free',label=L.kit_free,glyph='free'}},kitValue('layout'))
     local circle=layoutSec:Card(L.kitCircleDistance,L.kitCircleHelp,function() return S.db.kit.layout=='circle' end,I.size)
     slider(page,circle,'kit.circleDistance',L.kitCircleDistance,-200,200,1,kitValue('circleDistance'),px)
@@ -757,6 +758,12 @@ function B.general(page)
     slider(page,frames,'scale',L.scale,65,160,5,scaled('scale',100),pct)
     slider(page,frames,'opacity',L.opacity,25,100,5,scaled('opacity',100),pct)
     buttonRow(page,frames,{{label=L.reset,fn=function() S.UI.reset() end,icon=I.reset}})
+    local engine=s:Card(L.dotEngineTitle,L.dotEngineHelp,nil,I.dots)
+    segment(page,engine,'dotEngine',nil,{{value='window',label=L.dotEngineWindow,tip=L.dotEngineWindowHelp,glyph='bars'},
+        {value='cards',label=L.dotEngineCards,tip=L.dotEngineCardsHelp,glyph='grid'}},
+        {function() return S.db.dotEngine end,function(v) S.db.dotEngine=v; O.refresh() end})
+    page.engineNote=engine:Note('',T.c.gold)
+    buttonRow(page,engine,{{label=L.languageReload,fn=function() if ReloadUI then ReloadUI() end end,kind='primary',icon=I.reset}})
     local help=s:Card(L.cardHelp,L.cardHelpBody,nil,I.help)
     page.health={dots=statusLine(help,I.dots).text,nightfall=statusLine(help,I.proc).text,shards=statusLine(help,I.shards).text}
     buttonRow(page,help,{
@@ -771,6 +778,7 @@ function O.syncGeneral(page)
     local get=C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
     local addonVersion=get and A.call(get,addon,'Version') or '?'
     page.aboutLine:SetText(string.format(L.aboutLine,addonVersion,tostring(version),tostring(build)))
+    page.engineNote:SetText(((S.db.dotEngine=='cards')~=(S.legacyEnemies==true)) and L.dotEngineReload or '')
     syncHealth(page)
 end
 O.NAV={
@@ -811,6 +819,11 @@ function O.create()
     O.side=side; O.nav={}
     local y=-12; local group
     for i,def in ipairs(O.NAV) do
+        if def.key=='enemies' then
+            -- The engine is chosen at load (General > DoT engine).
+            def.build=S.legacyEnemies and B.enemiesLegacy or B.multiTarget
+            def.tabs=S.legacyEnemies and {'display','timers','health','frame','advanced'} or {'display','health','did','frame'}
+        end
         if def.group and def.group~=group then
             group=def.group; y=y-6
             local head=T.text(side,10,T.c.faint); head:SetPoint('TOPLEFT',16,y); head:SetText(string.upper(L['sideGroup_'..group]))

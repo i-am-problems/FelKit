@@ -9,7 +9,7 @@
 -- adjustable bar height, and equal-width rows whose height follows the real
 -- number of DoTs: each row hangs below the previous row's native group, which
 -- the game sizes itself (the 0.5.1 chain), so nothing is measured in Lua.
-local _, S = ...
+local addonName, S = ...
 local WH = S.WH
 local P = {current={enemy='aio',dots='hud',healthHeight=20,barHeight=16,spacing=3}, pending=false}
 WH.Presentation = P
@@ -21,6 +21,13 @@ local SORT_EXPIRATION,SORT_NORMAL=5,0 -- validated in game since 0.5.5
 local ICON_CROP=(1-1/1.3)/2
 local GOLD={1,.82,0}
 local FONT='FelkitWHDotFont'
+-- Felkit 'kit' bars: one native group per DoT family, in a fixed order, each
+-- filled in its family's colour. Slots are Warlock HUD effect slots.
+local MEDIA='Interface\\AddOns\\'..addonName..'\\Media\\'
+local KIT_ORDER={3,2,1,5,6,4,7}
+local KIT_COLORS={[1]={.86,.60,.20},[2]={.70,.22,.62},[3]={.56,.32,.90},[4]={.36,.76,.30},
+    [5]={.88,.26,.14},[6]={.20,.74,.64},[7]={.92,.46,.10}}
+P.KIT_COLORS=KIT_COLORS
 local PARKED=-20000 -- absent chained rows wait far below, invisible
 local function frame(kind,parent) return CreateFrame(kind,nil,parent,TEMPLATE) end
 local function font(t,size)
@@ -37,7 +44,8 @@ function P.SetRowSource(fn) rowSource=fn end
 
 function P.Settings()
     local p=S.db.multiTarget
-    local c={enemy='aio',dots=p.dotStyle=='equal' and 'equal' or 'hud',effects={},spells={},
+    local c={enemy='aio',dots=(p.dotStyle=='equal' or p.dotStyle=='kit') and 'equal' or 'hud',
+        barStyle=p.dotStyle=='kit' and 'kit' or 'flat',effects={},spells={},
         healthHeight=p.healthHeight,showName=p.showName,showPortrait=p.showPortrait,
         execute=p.execute,didBars=p.didBars,transparent=p.transparent,header=p.header,
         spacing=p.spacing,barHeight=p.barHeight,clickTarget=p.clickTarget,healthColor=p.healthColor,locked=p.locked~=false,
@@ -55,6 +63,14 @@ function P.Settings()
         if on then names[#names+1]=spell.name; for _,id in ipairs(spell.ids) do c.ids[id]=true end end
     end
     c.idsKey=table.concat(names,',')
+    -- Kit bars: the enabled spells of each effect slot.
+    c.slotIds={}
+    for _,spell in ipairs(WH.API.Spells) do
+        if spell.group~=2 and c.spells[spell.name] then
+            local ids=c.slotIds[spell.slot] or {}; c.slotIds[spell.slot]=ids
+            for _,id in ipairs(spell.ids) do ids[id]=true end
+        end
+    end
     return c
 end
 -- Public geometry, all derived from the applied settings.
@@ -150,6 +166,63 @@ local function makeBar(button,row,c)
     button:SetDurationText(v.time,{})
     row.barVisuals[#row.barVisuals+1]=v
 end
+-- Kit bar: a round icon in a gold ring heading a dark, gold-edged bar filled
+-- in the family's colour, its name on the left and its time on the right.
+local function kitGeometry(v,h)
+    v.icon:SetSize(h+2,h+2)
+    v.ring:SetSize((h+2)*1.24,(h+2)*1.24)
+    v.bar:ClearAllPoints(); v.bar:SetPoint('TOPLEFT',v.button,'TOPLEFT',h+6,-1); v.bar:SetPoint('BOTTOMRIGHT',v.button,'BOTTOMRIGHT',-1,1)
+    local size=math.max(7,math.min(11,h-3))
+    v.name:SetHeight(h); font(v.name,size); v.time:SetSize(36,h); font(v.time,size)
+end
+local function kitEdges(parent,anchor)
+    local e={}
+    for i=1,4 do e[i]=parent:CreateTexture(nil,'OVERLAY'); e[i]:SetColorTexture(.84,.65,.28,1) end
+    e[1]:SetPoint('TOPLEFT',anchor,'TOPLEFT',-1,1); e[1]:SetPoint('TOPRIGHT',anchor,'TOPRIGHT',1,1); e[1]:SetHeight(1)
+    e[2]:SetPoint('BOTTOMLEFT',anchor,'BOTTOMLEFT',-1,-1); e[2]:SetPoint('BOTTOMRIGHT',anchor,'BOTTOMRIGHT',1,-1); e[2]:SetHeight(1)
+    e[3]:SetPoint('TOPLEFT',anchor,'TOPLEFT',-1,1); e[3]:SetPoint('BOTTOMLEFT',anchor,'BOTTOMLEFT',-1,-1); e[3]:SetWidth(1)
+    e[4]:SetPoint('TOPRIGHT',anchor,'TOPRIGHT',1,1); e[4]:SetPoint('BOTTOMRIGHT',anchor,'BOTTOMRIGHT',1,-1); e[4]:SetWidth(1)
+    return e
+end
+local function makeKitBar(button,row,c,slot)
+    button:SetAlpha(1)
+    local v={button=button,slot=slot}
+    v.icon=button:CreateTexture(nil,'ARTWORK'); v.icon:SetTexCoord(.08,.92,.08,.92)
+    v.icon:SetPoint('LEFT',button,'LEFT',0,0)
+    v.mask=button:CreateMaskTexture(); v.mask:SetTexture(MEDIA..'fk_mask','CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
+    v.mask:SetAllPoints(v.icon); v.icon:AddMaskTexture(v.mask)
+    v.bar=frame('StatusBar',button); v.bar:SetStatusBarTexture(MEDIA..'fk_bar'); v.bar:SetMinMaxValues(0,1)
+    local color=KIT_COLORS[slot] or KIT_COLORS[3]
+    v.bar:SetStatusBarColor(color[1],color[2],color[3],.95)
+    v.bg=v.bar:CreateTexture(nil,'BACKGROUND'); v.bg:SetAllPoints(v.bar); v.bg:SetColorTexture(.04,.025,.06,.92)
+    local overlay=frame('Frame',button); overlay:SetAllPoints(button); overlay:SetFrameLevel(v.bar:GetFrameLevel()+2)
+    v.edges=kitEdges(overlay,v.bar)
+    v.ring=overlay:CreateTexture(nil,'OVERLAY',nil,2); v.ring:SetTexture(MEDIA..'fk_ring'); v.ring:SetPoint('CENTER',v.icon,'CENTER')
+    v.name=text(overlay,11); v.name:SetPoint('LEFT',v.bar,'LEFT',5,0); v.name:SetPoint('RIGHT',v.bar,'RIGHT',-40,0)
+    v.time=text(overlay,11); v.time:SetJustifyH('RIGHT'); v.time:SetPoint('RIGHT',v.bar,'RIGHT',-5,0)
+    kitGeometry(v,c.barHeight); v.height=c.barHeight
+    button:SetIcon(v.icon); button:SetSpellName(v.name)
+    button:SetDurationBar(v.bar,{direction=1,interpolation=0})
+    button:SetDurationText(v.time,{})
+    row.kitVisuals[#row.kitVisuals+1]=v
+end
+local function kitFilters(c,slot)
+    local ids=c.slotIds and c.slotIds[slot]
+    if ids and next(ids) then return {includeSpellIDs=ids} end
+    return {includeSpellIDs={[1]=true}} -- nothing of this family is tracked
+end
+local function kitLayout(width,height)
+    return {elementWidth=width,elementHeight=height,elementSpacing=BAR_GAP,lineSpacing=BAR_GAP,groupSpacing=BAR_GAP}
+end
+local function addKitGroups(container,c,row)
+    container:SetFlowLayoutAxis(1)
+    container:SetFlowLayoutAnchorPoint('TOPLEFT'); container:SetFlowLayoutGrowthDirection(1,-1)
+    for _,slot in ipairs(KIT_ORDER) do
+        container:AddAuraGroup('kit'..slot,'HARMFUL|PLAYER',{maxFrameCount=1,sortMethod=SORT_NORMAL,
+            sortDirection=SORT_NORMAL,candidateFilters=kitFilters(c,slot),layout=kitLayout(200,c.barHeight),
+            initializeFrame=function(button) makeKitBar(button,row,c,slot) end})
+    end
+end
 local function addGroup(container,c,horizontal,init)
     container:SetFlowLayoutAxis(horizontal and 0 or 1)
     container:SetFlowLayoutAnchorPoint('TOPLEFT'); container:SetFlowLayoutGrowthDirection(1,-1)
@@ -169,7 +242,16 @@ function P.EnsureGroups(row,c)
         row.iconGroup=true
         container:SetUnit(row.unit)
     end
-    if c.dots=='equal' and not row.barGroup then
+    if c.barStyle=='kit' and not row.kitGroup then
+        row.kitVisuals=row.kitVisuals or {}
+        local container=row.kitContainer or CreateFrame('AuraContainer',nil,row.icons,'CustomAuraContainerTemplate')
+        row.kitContainer=container
+        container:SetUnit('none')
+        addKitGroups(container,c,row)
+        row.kitGroup=true; row.kitAuras=container
+        container:SetUnit(row.unit); container:Show()
+    end
+    if c.dots=='equal' and c.barStyle~='kit' and not row.barGroup then
         -- A failed first allocation keeps its container for the retry; the
         -- renderer is published only once its group exists. Its height is the
         -- game's: the flow layout grows with the shown DoTs (empty = 1 px).
@@ -211,6 +293,26 @@ local function previewVisuals(row)
         row.previewVisuals[#row.previewVisuals+1]=v
     end
 end
+-- Test bars in the kit look: public textures only, switched in place.
+function P.PreviewKit(v,on,bh)
+    if not v.kitRing then
+        v.kitRing=v.lane:CreateTexture(nil,'OVERLAY',nil,3); v.kitRing:SetTexture(MEDIA..'fk_ring')
+        v.kitMask=v.lane:CreateMaskTexture(); v.kitMask:SetTexture(MEDIA..'fk_mask','CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
+        v.kitMask:SetAllPoints(v.barIcon)
+        v.kitEdges=kitEdges(v.bar,v.bar)
+    end
+    if v.kitOn~=on then
+        if on then v.barIcon:AddMaskTexture(v.kitMask) else v.barIcon:RemoveMaskTexture(v.kitMask) end
+        v.kitOn=on
+    end
+    v.kitRing:ClearAllPoints(); v.kitRing:SetPoint('CENTER',v.barIcon,'CENTER'); v.kitRing:SetSize(bh*1.24,bh*1.24)
+    v.kitRing:SetShown(on)
+    for _,e in ipairs(v.kitEdges) do e:SetShown(on) end
+    local color=on and KIT_COLORS[v.spell.slot] or nil
+    v.bar:SetStatusBarTexture(on and MEDIA..'fk_bar' or WHITE)
+    if color then v.bar:SetStatusBarColor(color[1],color[2],color[3],.95) else v.bar:SetStatusBarColor(.58,.36,.92,.95) end
+    if on then v.bg:SetColorTexture(.04,.025,.06,.92) else v.bg:SetColorTexture(.10,.09,.14,.85) end
+end
 function P.Timing(id)
     local t=S.DotTiming and S.DotTiming[id]
     if t and t.count then return t.duration,t.count end
@@ -249,7 +351,15 @@ end
 function P.Enable(row,enabled)
     local c=P.current
     if row.auras and row.auras.SetEnabled then row.auras:SetEnabled(enabled and c.dots=='hud') end
-    if row.barAuras then row.barAuras:SetEnabled(enabled and c.dots=='equal') end
+    if row.barAuras then row.barAuras:SetEnabled(enabled and c.dots=='equal' and c.barStyle~='kit') end
+    if row.kitAuras then row.kitAuras:SetEnabled(enabled and c.barStyle=='kit') end
+end
+-- The bar container the current style draws with (chain anchor).
+function P.ActiveBars(row)
+    local c=P.current
+    if c.dots~='equal' then return nil end
+    if c.barStyle=='kit' then return row.kitAuras end
+    return row.barAuras
 end
 -- Public, synthetic durations only; the preview sorts like the game does.
 function P.AnimatePreview(rows,now)
@@ -265,7 +375,14 @@ function P.AnimatePreview(rows,now)
                 list[#list+1]=v
             end
         end
-        table.sort(list,function(a,b) return a.remaining<b.remaining end)
+        if c.barStyle=='kit' and c.dots=='equal' then
+            local rank={}; for i,slot in ipairs(KIT_ORDER) do rank[slot]=i end
+            table.sort(list,function(a,b)
+                local ra,rb=rank[a.spell.slot] or 99,rank[b.spell.slot] or 99
+                if ra~=rb then return ra<rb end
+                return a.remaining<b.remaining
+            end)
+        else table.sort(list,function(a,b) return a.remaining<b.remaining end) end
         for position,v in ipairs(list) do
             local label=v.remaining<10 and string.format('%.1f',v.remaining) or tostring(math.ceil(v.remaining))
             local placed=c.dots..position..'/'..tostring(c)
@@ -391,9 +508,11 @@ function P.HealthAvailable(row,available)
 end
 function P.RefreshAuras(row)
     if row.barAuras then pcall(row.barAuras.UpdateAllAuras,row.barAuras) end
+    if row.kitAuras then pcall(row.kitAuras.UpdateAllAuras,row.kitAuras) end
 end
 function P.Retire(row)
     if row.barAuras then row.barAuras:SetEnabled(false); row.barAuras:Hide() end
+    if row.kitAuras then row.kitAuras:SetEnabled(false); row.kitAuras:Hide() end
 end
 -- Ghost (last seen) rows: the families with remaining estimated damage, no timer.
 function P.GhostIcons(row,byKey)
@@ -493,8 +612,9 @@ local function tail(row,c,header)
     local t=row.tail
     t:ClearAllPoints(); t:SetSize(1,1)
     local pad=P.Pad(c)
-    if row.barAuras then
-        t:SetPoint('TOP',row.barAuras,'BOTTOM',0,-pad); t:SetPoint('LEFT',row.display,'LEFT',0,0)
+    local bars=P.ActiveBars(row)
+    if bars then
+        t:SetPoint('TOP',bars,'BOTTOM',0,-pad); t:SetPoint('LEFT',row.display,'LEFT',0,0)
     else
         local below=row.source=='ghost' and c.dots=='equal' and (c.barHeight+BAR_GAP) or 0
         t:SetPoint('TOPLEFT',row.display,'TOPLEFT',0,-header-below)
@@ -581,21 +701,40 @@ function P.Row(row,width,_,panelWidth)
     if row.barAuras then
         -- No height: the game sizes the group to the DoTs it shows.
         row.barAuras:ClearAllPoints(); row.barAuras:SetPoint('TOPLEFT',row.display,'TOPLEFT',inner,-header)
-        row.barAuras:SetWidth(barWidth); row.barAuras:SetAlpha(c.dots=='equal' and 1 or 0)
+        row.barAuras:SetWidth(barWidth); row.barAuras:SetAlpha(c.dots=='equal' and c.barStyle~='kit' and 1 or 0)
         configureGroup(row.barAuras,c,barWidth,bh,BAR_GAP)
         for _,v in ipairs(row.barVisuals or {}) do
             v.button:SetSize(barWidth,bh)
             if v.height~=bh then barGeometry(v,bh); v.height=bh end
         end
     end
+    if row.kitAuras then
+        row.kitAuras:ClearAllPoints(); row.kitAuras:SetPoint('TOPLEFT',row.display,'TOPLEFT',inner,-header)
+        row.kitAuras:SetWidth(barWidth); row.kitAuras:SetAlpha(c.barStyle=='kit' and 1 or 0)
+        local signature=barWidth..':'..bh..':'..(c.idsKey or '')
+        if row.kitAuras.kitSignature~=signature then
+            row.kitAuras.kitSignature=signature
+            for _,slot in ipairs(KIT_ORDER) do
+                local key='kit'..slot
+                if row.kitAuras.SetAuraGroupLayout then row.kitAuras:SetAuraGroupLayout(key,kitLayout(barWidth,bh)) end
+                if row.kitAuras.SetAuraGroupCandidateFilters then row.kitAuras:SetAuraGroupCandidateFilters(key,kitFilters(c,slot)) end
+            end
+        end
+        for _,v in ipairs(row.kitVisuals or {}) do
+            v.button:SetSize(barWidth,bh)
+            if v.height~=bh then kitGeometry(v,bh); v.height=bh end
+        end
+    end
     for _,v in ipairs(row.previewVisuals or {}) do
+        P.PreviewKit(v,c.barStyle=='kit',bh)
         local hud=c.dots=='hud' and v.on
         v.icon:SetSize(size,size); v.icon:SetAlpha(hud and 1 or 0)
         v.timer:ClearAllPoints(); v.timer:SetPoint('CENTER',v.icon,'CENTER'); v.timer:SetSize(size+4,size)
         v.timer:SetAlpha(hud and 1 or 0)
         v.lane:SetSize(barWidth,bh); v.lane:SetAlpha(c.dots=='equal' and v.on and 1 or 0)
         v.barIcon:ClearAllPoints(); v.barIcon:SetPoint('TOPLEFT',v.lane,'TOPLEFT'); v.barIcon:SetSize(bh,bh)
-        v.bar:ClearAllPoints(); v.bar:SetPoint('TOPLEFT',v.lane,'TOPLEFT',bh+3,0); v.bar:SetSize(barWidth-bh-3,bh)
+        local kitOffset=c.barStyle=='kit' and 3 or 0
+        v.bar:ClearAllPoints(); v.bar:SetPoint('TOPLEFT',v.lane,'TOPLEFT',bh+3+kitOffset,0); v.bar:SetSize(barWidth-bh-3-kitOffset,bh)
         local fs=math.max(7,math.min(11,bh-3))
         v.name:ClearAllPoints(); v.name:SetPoint('LEFT',v.bar,'LEFT',4,0); v.name:SetSize(math.max(1,barWidth-bh-47),bh); font(v.name,fs)
         v.time:ClearAllPoints(); v.time:SetPoint('RIGHT',v.bar,'RIGHT',-4,0); v.time:SetSize(36,bh); font(v.time,fs)

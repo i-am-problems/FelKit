@@ -347,7 +347,7 @@ function K.create()
  for index,g in ipairs(D.groups) do
   local b=action('FelkitKit'..g.key,K.body); b.group=g; K.buttons[g.key]=b
   if g.key=='health' then b:HookScript('PreClick',function(self) K.healthClickAt=GetTime(); K.healthTrace={spell=self:GetAttribute('macrotext1') or self:GetAttribute('spell1') or self:GetAttribute('item1')} end) end
-  if g.reminder then b.halo=S.UI.halo(b,1,0.62,0.12) end
+  if g.reminder or g.key=='soul' or g.key=='health' then b.halo=S.UI.halo(b,1,0.62,0.12) end
   mover(b)
   local fly=CreateFrame('Frame',nil,K.body,'BackdropTemplate'); backdrop(fly); fly:EnableMouse(true)
   fly:SetFrameStrata('DIALOG'); fly:SetClampedToScreen(true); fly.choices={}; K.flyouts[index]=fly
@@ -527,7 +527,12 @@ function K.refresh()
   b.flyout:SetSize(math.max(1,math.min(count,4))*44+12,math.max(1,math.ceil(count/4))*44+12)
   b.flyout:Hide()
  end
+ S.Orb.skinCounter()
+ if cfg.layout=='orb' then
+  S.Orb.place(visible,cfg); visible={}
+ else S.Orb.hideExtras() end
  for i,b in ipairs(visible) do
+  S.Orb.skin(b,cfg.size)
   local x,y=M.position(cfg.layout,i,#visible,cfg.size*cfg.scale,cfg)
   if cfg.layout=='free' then
    local p=cfg.positions[b.group.key]
@@ -556,7 +561,7 @@ local function utilityVisual(b,active,expiration,now,estimated)
  b.icon:SetVertexColor(gray and 0.55 or 1,gray and 0.55 or 1,gray and 0.55 or 1)
  b.statusMark:SetText(active==true and b:GetAttribute('family')=='sense' and 'ON' or '')
  b.statusMark:SetTextColor(active==true and 0.45 or 1,1,active==true and 0.55 or 1)
- b:SetBackdropBorderColor(active==true and 0.3 or 0.43,active==true and 0.9 or 0.24,active==true and 0.45 or 0.60,1)
+ S.Orb.border(b,active==true and 'active' or 'normal')
  b.time:SetText(active and expiration and expiration>now and timeText(expiration-now) or '')
  -- It drew over the main pass: that pass sets its own values again next time.
  b.grayState,b.statusCleared,b.borderState=nil,nil,nil
@@ -636,13 +641,16 @@ function K.visuals()
    b.time:SetText('')
   end
   local missing=g.reminder and active==false and b:GetAttribute('available')
+  -- Felkit reminders: no soulstone out (and it's ready), no healthstone carried.
+  if g.key=='soul' then missing=b:GetAttribute('available') and active==false and not (remaining and remaining>1.5) end
+  if g.key=='health' then missing=b:GetAttribute('available') and count==0 end
+  if missing and S.db.kit.reminders and S.db.kit.reminders[g.key]==false then missing=false end
   local border=(g.key=='soul' and active==true) and 'soul' or missing and 'missing' or 'normal'
   if b.borderState~=border then
-   if border=='soul' then b:SetBackdropBorderColor(0.3,0.9,0.45,1)
-   else b:SetBackdropBorderColor(missing and 1 or 0.43,missing and 0.7 or 0.24,missing and 0.2 or 0.60,1) end
+   S.Orb.border(b,border)
    b.borderState=border
   end
-  S.UI.setHalo(b.halo,missing and b:IsShown(),S.db.kit.size)
+  S.UI.setHalo(b.halo,missing and b:IsShown(),b:GetWidth())
   if b.curseTimers then
    -- Native descendants may be forbidden; only these addon-owned ancestors
    -- are changed. No native alpha, text, visibility or duration is inspected.

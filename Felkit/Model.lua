@@ -24,6 +24,8 @@ function M.settings(old)
         positions={}, channelSpells={}}
     -- Saved positions replace these one by one.
     for k,p in pairs(M.defaultPositions) do d.positions[k]={x=p.x,y=p.y} end
+    -- Felkit: which DoT engine draws enemies (applied at load, so a reload switches).
+    d.dotEngine=old.dotEngine=='cards' and 'cards' or 'window'
     for k,v in pairs(d) do
         if type(v)=='boolean' and type(old[k])=='boolean' then d[k]=old[k] end
     end
@@ -94,8 +96,7 @@ function M.multiTarget(old)
         multiDotX=M.number(old.multiDotX,0,1,0.6899731920128888),multiDotY=M.number(old.multiDotY,0,1,0.5541122910772355),
         -- 0.7.0: one health bar style; DoTs as Warlock HUD icons or equal-width
         -- bars (the former bar styles become equal bars), always sorted by expiry.
-        dotStyle=(old.dotStyle=='equal' or (old.dotStyle==nil and (old.dotPresentation=='equal'
-            or old.dotPresentation=='proportional'))) and 'equal' or 'hud',
+        dotStyle=(old.dotStyle=='hud' or old.dotStyle=='equal') and old.dotStyle or 'kit',
         healthHeight=math.floor(M.number(old.healthHeight,8,40,25)),
         -- 0.7.1: denser tables, bar height, click to target, Does It Die look.
         spacing=math.floor(M.number(old.spacing,0,16,4)),barHeight=math.floor(M.number(old.barHeight,8,30,12)),

@@ -227,6 +227,24 @@ function S.diagnostics()
 end
 local function slash(text)
     text=(text or ''):match('^%s*(.-)%s*$')
+    -- Felkit: switch DoT looks quickly while testing.
+    local style=text:match('^style%s*(%a*)$')
+    if style then
+        local list={'hud','equal','kit'}
+        local cur=S.db.multiTarget and S.db.multiTarget.dotStyle
+        if style=='' then
+            for i,v in ipairs(list) do if v==cur then style=list[i%#list+1] end end
+            if style=='' then style='kit' end
+        end
+        if style~='hud' and style~='equal' and style~='kit' then S.print(L.styleHelp); return end
+        S.db.multiTarget.dotStyle=style; S.refreshAll()
+        S.print(string.format(L.styleNow,L['styleName_'..style]))
+        return
+    end
+    local engine=text:match('^engine%s+(%a+)$')
+    if engine=='window' or engine=='cards' then
+        S.db.dotEngine=engine; S.print(L.dotEngineReload); return
+    end
     if text:match('^dot%s+') then
         local id,duration,interval,total=text:match('^dot%s+(%d+)%s+(%S+)%s+(%S+)%s+(%S+)$')
         if id and S.Tracker.setProfile(id,duration,interval,total) then S.print(L.dotSaved)
@@ -337,6 +355,7 @@ events:SetScript('OnEvent',function(_,event,arg,arg2,arg3,arg4)
         if A.combat() then S.pendingLoad=true; register('PLAYER_REGEN_ENABLED'); return end
         S.pendingLoad=nil
         FelkitDB=S.Model.settings(FelkitDB); S.db=FelkitDB
+        S.legacyEnemies=S.db.dotEngine=='cards' or nil
         S.builtLanguage=S.applyLocale(S.db.language)
         U.create(); S.ready=true; S.Kit.create(); S.Spells.setupTooltips()
         SLASH_FELKIT1='/felkit'

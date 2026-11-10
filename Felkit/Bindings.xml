@@ -11,6 +11,7 @@
  <Binding name="CLICK FelkitKitward:LeftButton"/>
  <Binding name="CLICK FelkitKitarmor:LeftButton"/>
  <Binding name="CLICK FelkitKitweapon:LeftButton"/>
+ <Binding name="CLICK FelkitKitdrain:LeftButton"/>
  <Binding name="CLICK FelkitKitsummon:LeftButton"/>
  <Binding name="CLICK FelkitKitutility:LeftButton"/>
  <Binding name="CLICK FelkitQueueToggle:LeftButton"/>

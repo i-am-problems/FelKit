@@ -111,7 +111,7 @@ local kitEN={
  kitCircleHelp='Negative distance pulls buttons closer (they may overlap).',
  kitScaleHelp='Size of the buttons and menus; the shard keeps its size.',
  kit='Action kit',kitHelp='Click the shard to fold / unfold actions. Right-click it for settings. Shift-click deletes excess shards. Drag the icon to move. Spell names follow your client language. Bind keys in WoW > Key Bindings > Felkit.',
- kitLayout='Presentation',kit_circle='Circle',kit_horizontal='Horizontal',kit_vertical='Vertical',kit_grid='Compact grid',
+ kitLayout='Presentation',kit_orb='Orb',kit_drain='Drain Soul',kit_circle='Circle',kit_horizontal='Horizontal',kit_vertical='Vertical',kit_grid='Compact grid',
  kit_free='Free placement',kitEdit='Move buttons',kitEditDone='Finish moving',kitReset='Reset free placement',
  kitDragHelp='Drag to move. No spell is cast from this handle.',
  kitFreeHelp='Choose Free placement, then Move buttons. Drag each gold handle and finish moving to use your spells again. Positions are saved; moving the shard moves the whole set. Editing pauses during combat.',
@@ -120,8 +120,8 @@ local kitEN={
  kitVerticalDirection='Vertical: direction',kitGridDirection='Grid: side of the shard',kitScale='Button scale',
  kitGeometryHelp='Negative distance brings the circle closer than the standard spacing; buttons may overlap. The shard stays clear. Directions apply to their respective layout. Button scale includes menus and leaves the shard unchanged. Changes apply immediately outside combat.',
  kitSize='Button size',kitHideUnknown='Hide spells not learned',kitWeaponChoice='Weapon stone',kitWeaponHelp='Stone type for the weapon button; your best stone or rank is always used.',kitFirestone='Firestone',kitSpellstone='Spellstone',kitDeferred='Kit changes will apply after combat.',
- kit_health='Healthstone',kit_soul='Soulstone',kit_demon='Demons',kit_sacrifice='Demonic Sacrifice',kit_link='Soul Link',kit_domination='Fel Domination',
- kit_curse1='Curse slot 1',kit_curse2='Curse slot 2',kit_ward='Shadow Ward',kit_armor='Demon Armor / Skin',kit_weapon='Firestone / Spellstone',kit_summon='Ritual of Summoning',kit_utility='Utility spells',
+ kit_health='Healthstone',kit_soul='Soulstone',kit_demon='Demon',kit_sacrifice='Demonic Sacrifice',kit_link='Soul Link',kit_domination='Fel Domination',
+ kit_curse1='Curse slot 1',kit_curse2='Curse slot 2',kit_ward='Shadow Ward',kit_armor='Demon Armor / Skin',kit_weapon='Firestone / Spellstone',kit_summon='Ritual of Summoning',kit_utility='Buffs',
  kitClick='Left-click: cast / use. Right-click: choose without casting.',kitCreate='Shift-click: create the best learned rank. Right-click: choose the stone type.',
  kitStateObserved='Last known state; may be out of date.',
  kitUtilityInactive='Effect inactive',kitUtilityTarget='Cast on your friendly target, or on you if none.',
@@ -458,7 +458,7 @@ function S.applyLocale(pref)
  for k,v in pairs(chosen) do S.L[k]=v end
  setmetatable(S.L,{__index=function(_,k) return english[k] end})
  BINDING_HEADER_FELKIT='Felkit'
- for _,key in ipairs({'health','soul','demon','sacrifice','link','domination','curse1','curse2','ward','armor','weapon','summon','utility'}) do
+ for _,key in ipairs({'health','soul','demon','sacrifice','link','domination','curse1','curse2','ward','armor','weapon','drain','summon','utility'}) do
   _G['BINDING_NAME_CLICK FelkitKit'..key..':LeftButton']=S.L['kit_'..key]
  end
  _G['BINDING_NAME_CLICK FelkitShardIcon:LeftButton']=S.L.kit

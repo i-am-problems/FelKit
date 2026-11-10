@@ -1,6 +1,6 @@
 local _,S=...
 local M={}; S.KitModel=M
-M.defaultVisible={curse2=false}
+M.defaultVisible={}
 M.defaultSelected={demon='void',health='health',utility='invisibility',weapon='stone',curse2='elements',curse1='recklessness'}
 M.defaultPositions={soul={x=41.87107159574628,y=49.90000000000001},curse2={x=22.27913185097036,y=-61.21141168559331},
  curse1={x=56.41274215487211,y=-32.56991186884034},summon={x=-64.15020344671665,y=11.31141168559329},
@@ -10,7 +10,7 @@ M.defaultPositions={soul={x=41.87107159574628,y=49.90000000000001},curse2={x=22.
 function M.settings(old)
  old=type(old)=='table' and old or {}
  -- 0.7.5: the defaults are the owner's own kit of 22 October 2026.
- local d={enabled=old.enabled~=false,layout='grid',hideUnknown=old.hideUnknown~=false,
+ local d={enabled=old.enabled~=false,layout='orb',hideUnknown=old.hideUnknown~=false,
   size=S.Model.number(old.size,28,52,36),scale=S.Model.number(old.scale,0.5,2,1),
   queueWidth=S.Model.number(old.queueWidth,460,800,550),queueHeight=S.Model.number(old.queueHeight,540,820,616),
   queueScale=S.Model.number(old.queueScale,0.65,1.5,1),
@@ -25,7 +25,7 @@ function M.settings(old)
  local qy=qp and S.Model.number(qp.y,-20000,20000)
  if qx and qy then d.queueButtonPosition={x=qx,y=qy} end
  if old.gridDirection=='left' or old.gridDirection=='up' or old.gridDirection=='down' then d.gridDirection=old.gridDirection end
- if old.layout=='horizontal' or old.layout=='vertical' or old.layout=='circle' or old.layout=='free' then d.layout=old.layout end
+ if old.layout=='horizontal' or old.layout=='vertical' or old.layout=='circle' or old.layout=='free' or old.layout=='grid' then d.layout=old.layout end
  for _,g in ipairs(S.KitData.groups) do
   local saved,selected
   if type(old.visible)=='table' then saved=old.visible[g.key] end

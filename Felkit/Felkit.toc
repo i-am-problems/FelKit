@@ -30,6 +30,7 @@ UI.lua
 CardClick.lua
 Options.lua
 Onboarding.lua
+Orb.lua
 Kit.lua
 Auto.lua
 Core.lua
