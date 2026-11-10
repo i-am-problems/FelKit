@@ -42,6 +42,12 @@ local en={
  fontTitle='Font',fontHelp='The font for Felkit\'s texts. The DoT bars can use their own (Enemies & DoTs). Fonts from other addons that use LibSharedMedia are listed too. Some texts change after a reload.',
  fontFace='Font',fontOutline='Outline',fontUseGeneral='Same as General',fontAuto='Auto',
  texTitle='Bar texture',texAuto='Style default',texHealth='Use the bar texture on health bars too',
+ iconPlace='Where the DoT icons go',iconPlaceRight='Right of the health bar',iconPlaceBelow='Under the health bar',
+ iconShape='Icon shape',iconShape_square='Square',iconShape_rounded='Rounded square',iconShape_round='Round',
+ iconShape_diamond='Diamond',iconShape_hexagon='Hexagon',
+ iconBorder='Icon border',iconBorder_none='None',iconBorder_gold='Gold',iconBorder_purple='Purple',iconBorder_silver='Silver',
+ iconBorder_black='Black',iconBorder_red='Red',iconBorder_fel='Fel green',
+ iconSize='Icon size',iconTimeBar='Time bar under each icon',iconTimeBarHelp='A thin bar under each DoT icon that empties as the DoT runs out.',
  barFont='Bar font',barFontOutline='Bar font outline',barFontSize='Bar text size',
  mark1='Star',mark2='Circle',mark3='Diamond',mark4='Triangle',mark5='Moon',mark6='Square',mark7='Cross',mark8='Skull',
 }

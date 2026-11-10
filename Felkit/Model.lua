@@ -103,6 +103,10 @@ function M.multiTarget(old)
         -- 0.7.0: one health bar style; DoTs as Warlock HUD icons or equal-width
         -- bars (the former bar styles become equal bars), always sorted by expiry.
         dotStyle=(old.dotStyle=='hud' or old.dotStyle=='equal') and old.dotStyle or 'kit',
+        iconPlace=M.choice(old.iconPlace,{'right','below'},'right'),
+        iconShape=M.choice(old.iconShape,{'square','rounded','round','diamond','hexagon'},'square'),
+        iconBorder=M.choice(old.iconBorder,{'none','gold','purple','silver','black','red','fel'},'none'),
+        iconSize=math.floor(M.number(old.iconSize,0,48,0)),iconTimeBar=old.iconTimeBar==true,
         healthHeight=math.floor(M.number(old.healthHeight,8,40,25)),
         -- 0.7.1: denser tables, bar height, click to target, Does It Die look.
         spacing=math.floor(M.number(old.spacing,0,16,4)),barHeight=math.floor(M.number(old.barHeight,8,30,12)),

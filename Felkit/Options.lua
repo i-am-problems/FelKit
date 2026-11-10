@@ -485,6 +485,22 @@ function B.multiTarget(page)
     segment(page,dots,'mtDotStyle',nil,{{value='hud',label='Warlock HUD',tip=L.mtStyleHudHelp,glyph='icons'},
         {value='equal',label=L.mtStyleEqual,tip=L.mtStyleEqualHelp,glyph='bars'},
         {value='kit',label=L.mtStyleKit,tip=L.mtStyleKitHelp,glyph='bars'}},mtValue('dotStyle'))
+    local isHud=function() return p().dotStyle=='hud' end
+    segment(page,dots,'mtIconPlace',L.iconPlace,{{value='right',label=L.iconPlaceRight},{value='below',label=L.iconPlaceBelow}},
+        mtValue('iconPlace'),isHud)
+    dropdown(page,dots,'mtIconShape',L.iconShape,function()
+        local out={}
+        for _,k in ipairs({'square','rounded','round','diamond','hexagon'}) do out[#out+1]={value=k,label=L['iconShape_'..k]} end
+        return out
+    end,mtValue('iconShape'),isHud)
+    dropdown(page,dots,'mtIconBorder',L.iconBorder,function()
+        local out={}
+        for _,k in ipairs({'none','gold','purple','silver','black','red','fel'}) do out[#out+1]={value=k,label=L['iconBorder_'..k]} end
+        return out
+    end,mtValue('iconBorder'),isHud)
+    slider(page,dots,'mtIconSize',L.iconSize,0,48,1,{function() return p().iconSize end,
+        function(v) p().iconSize=math.floor(v); apply() end},function(v) return v==0 and L.fontAuto or (v..' px') end,isHud)
+    toggle(page,dots,'mtIconTimeBar',L.iconTimeBar,L.iconTimeBarHelp,mtBool('iconTimeBar'),isHud)
     slider(page,dots,'mtBarHeight',L.mtBarHeight,8,30,1,{function() return p().barHeight end,
         function(v) p().barHeight=math.floor(v); apply() end},px,function() return p().dotStyle~='hud' end)
     dropdown(page,dots,'mtBarTexture',L.texTitle,textureOptions,mtValue('barTexture'),function() return p().dotStyle~='hud' end)

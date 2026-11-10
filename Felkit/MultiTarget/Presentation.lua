@@ -54,7 +54,9 @@ function P.Settings()
         spacing=p.spacing,barHeight=p.barHeight,clickTarget=p.clickTarget,healthColor=p.healthColor,locked=p.locked~=false,
         selectStyle=p.selectStyle,selectColor=p.selectColor,selectSize=p.selectSize,
         multiDotAlpha=p.multiDotAlpha,multiDotHideOutOfCombat=p.multiDotHideOutOfCombat,
-        multiDotEnabled=p.multiDotEnabled,addonEnabled=WH.API.IsAddonEnabled(),ids={}}
+        multiDotEnabled=p.multiDotEnabled,addonEnabled=WH.API.IsAddonEnabled(),ids={},
+        iconPlace=p.iconPlace=='below' and 'below' or 'right',iconShape=p.iconShape or 'square',
+        iconBorder=p.iconBorder or 'none',iconSize=tonumber(p.iconSize) or 0,iconTimeBar=p.iconTimeBar==true}
     local order=WH.API.GetMultiTargetEffectOrder()
     for _,key in ipairs(order) do c.effects[key]=true end
     c.slots=math.max(1,math.min(MAX_FRAMES,#order))
@@ -80,8 +82,23 @@ end
 -- Public geometry, all derived from the applied settings.
 function P.Pad(c) local h=c.healthHeight; return h<=12 and 1 or h<=18 and 2 or 4 end
 function P.Portrait(c) return c.showPortrait and c.healthHeight+(c.healthHeight<=14 and 2 or 6) or 0 end
-function P.Header(c) return math.max(P.Portrait(c),c.healthHeight)+2*P.Pad(c) end
-function P.IconSize(c) c=c or P.current; return math.max(12,math.max(P.Portrait(c),c.healthHeight)) end
+-- HUD icons: beside the health bar (right) or in a line under it (below),
+-- each optionally with a thin time bar under it.
+local TIMEBAR=5
+function P.IconsBelow(c) c=c or P.current; return c.dots=='hud' and c.iconPlace=='below' end
+function P.IconSize(c)
+    c=c or P.current
+    if (c.iconSize or 0)>0 then return c.iconSize end
+    if c.iconPlace=='below' then return math.max(16,c.healthHeight+2) end
+    local h=math.max(12,math.max(P.Portrait(c),c.healthHeight))
+    return c.iconTimeBar and math.max(10,h-TIMEBAR) or h
+end
+function P.IconCell(c) c=c or P.current; return P.IconSize(c)+(c.iconTimeBar and TIMEBAR or 0) end
+function P.Header(c)
+    local h=math.max(P.Portrait(c),c.healthHeight)
+    if c.dots=='hud' and c.iconPlace~='below' then h=math.max(h,P.IconCell(c)) end
+    return h+2*P.Pad(c)
+end
 function P.TopInset(c) c=c or P.current; return c.header==false and 6 or 50 end
 function P.Inner(c) return P.Pad(c)+SELECT+2 end
 function P.HealthLeft(c) local ps=P.Portrait(c); return P.Inner(c)+(ps>0 and ps+4 or 0) end
@@ -90,8 +107,13 @@ function P.BackgroundAlpha(c)
     return math.max(.3,math.min(1,tonumber(c.multiDotAlpha) or 1))
 end
 function P.IconsWidth(c,slots)
-    if c.dots~='hud' then return 0 end
+    if c.dots~='hud' or c.iconPlace=='below' then return 0 end
     return 6+(slots or c.slots or 1)*(P.IconSize(c)+ICON_GAP)
+end
+-- Where the first icon's top left corner goes, from the row's display frame.
+function P.IconOrigin(c)
+    if c.iconPlace=='below' then return P.HealthLeft(c),-P.Header(c)-1,'TOPLEFT' end
+    return 6,-math.floor((P.Header(c)-P.IconCell(c))/2),'TOPRIGHT'
 end
 function P.MinimumWidth(c,slots)
     return math.max(260,P.HealthLeft(c)+120+P.Pad(c)+38+P.IconsWidth(c,slots))
@@ -109,6 +131,8 @@ function P.Step(row)
     if c.dots=='equal' then
         extra=row.source=='ghost' and (c.barHeight+BAR_GAP)
             or (c.slots or 1)*(c.barHeight+BAR_GAP)+P.Pad(c)
+    elseif P.IconsBelow(c) then
+        extra=P.IconCell(c)+P.Pad(c)+2
     end
     return header+extra+c.spacing,header
 end
@@ -128,15 +152,69 @@ function P.SyncCountdownFont()
     local path,outline,override=S.Media.barFont()
     P.font:SetFont(path,override or 11,outline)
 end
+-- Icon shapes: a mask clips the spell icon, a neutral bevelled frame is tinted
+-- in the border colour. The masks fill MASK_EXTENT of their texture, the
+-- frame's inner edge sits just inside that.
+local MASK_EXTENT=.88
+local BORDER_COLORS={gold={1,.80,.42},purple={.66,.42,1},silver={.86,.88,.95},black={.10,.10,.12},
+    red={1,.25,.22},fel={.45,1,.35}}
+local TIMEBAR_COLOR={.66,.42,1}
+local function shapeParts(owner,icon,layer)
+    local s={icon=icon}
+    s.mask=owner:CreateMaskTexture(); icon:AddMaskTexture(s.mask)
+    s.frame=layer:CreateTexture(nil,'OVERLAY',nil,1)
+    return s
+end
+local function applyShape(s,c,size,cooldown)
+    local shape=c.iconShape or 'square'
+    local border=BORDER_COLORS[c.iconBorder]
+    local key=shape..':'..tostring(c.iconBorder)..':'..size
+    if s.key==key then return end
+    s.key=key
+    local plain=shape=='square' and not border
+    local o=border and 0 or math.floor(size*(1/MASK_EXTENT-1)/2+.5)
+    s.mask:SetTexture(MEDIA..'fk_mask_'..shape,'CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
+    s.mask:ClearAllPoints(); s.mask:SetPoint('TOPLEFT',s.icon,'TOPLEFT',-o,o); s.mask:SetPoint('BOTTOMRIGHT',s.icon,'BOTTOMRIGHT',o,-o)
+    if plain then s.icon:SetTexCoord(ICON_CROP,1-ICON_CROP,ICON_CROP,1-ICON_CROP) else s.icon:SetTexCoord(.08,.92,.08,.92) end
+    s.frame:SetTexture(MEDIA..'fk_frame_'..shape); s.frame:ClearAllPoints(); s.frame:SetAllPoints(s.icon)
+    if border then s.frame:SetVertexColor(border[1],border[2],border[3],1); s.frame:SetAlpha(1) else s.frame:SetAlpha(0) end
+    if cooldown then
+        cooldown:ClearAllPoints()
+        if plain then cooldown:SetAllPoints(s.icon)
+        else cooldown:SetPoint('TOPLEFT',s.mask,'TOPLEFT'); cooldown:SetPoint('BOTTOMRIGHT',s.mask,'BOTTOMRIGHT') end
+        if cooldown.SetSwipeTexture then pcall(cooldown.SetSwipeTexture,cooldown,plain and WHITE or MEDIA..'fk_mask_'..shape) end
+    end
+end
+local function timeBar(parent)
+    local b=frame('StatusBar',parent); b:SetStatusBarTexture(WHITE); b:SetMinMaxValues(0,1)
+    b:SetStatusBarColor(TIMEBAR_COLOR[1],TIMEBAR_COLOR[2],TIMEBAR_COLOR[3],1)
+    b.bg=b:CreateTexture(nil,'BACKGROUND'); b.bg:SetAllPoints(b); b.bg:SetColorTexture(.04,.03,.06,.9)
+    return b
+end
+local function placeTimeBar(b,icon,size,on)
+    b:ClearAllPoints(); b:SetPoint('TOP',icon,'BOTTOM',0,-2); b:SetSize(math.max(4,math.floor(size*.8)),TIMEBAR-2)
+    b:SetAlpha(on and 1 or 0)
+end
+-- Out of restrictions: the icon's shape, size and time bar follow the settings.
+local function styleIcon(v,c,size)
+    v.icon:ClearAllPoints(); v.icon:SetPoint('TOPLEFT',v.button,'TOPLEFT'); v.icon:SetSize(size,size)
+    applyShape(v.shape,c,size,v.cooldown)
+    if v.timeBar then placeTimeBar(v.timeBar,v.icon,size,c.iconTimeBar) end
+end
 -- Warlock HUD icon: spell icon, reversed swipe, game countdown, stack count.
-local function makeIcon(button,row)
+local function makeIcon(button,row,c)
     -- Runs before native access restrictions are applied to the slot.
     button:SetAlpha(1)
     local v={button=button}
-    v.icon=button:CreateTexture(nil,'ARTWORK'); v.icon:SetAllPoints(button)
-    v.icon:SetTexCoord(ICON_CROP,1-ICON_CROP,ICON_CROP,1-ICON_CROP)
+    v.icon=button:CreateTexture(nil,'ARTWORK')
     button:SetIcon(v.icon)
-    v.cooldown=CreateFrame('Cooldown',nil,button,'CooldownFrameTemplate'); v.cooldown:SetAllPoints(button)
+    v.cooldown=CreateFrame('Cooldown',nil,button,'CooldownFrameTemplate')
+    local overlay=frame('Frame',button); overlay:SetAllPoints(button); overlay:SetFrameLevel(v.cooldown:GetFrameLevel()+1)
+    v.shape=shapeParts(button,v.icon,overlay)
+    local bar=timeBar(button)
+    if button.SetDurationBar and pcall(button.SetDurationBar,button,bar,{direction=1,interpolation=0}) then v.timeBar=bar
+    else bar:Hide() end
+    styleIcon(v,c,P.IconSize(c))
     v.cooldown:SetDrawBling(false); v.cooldown:SetDrawEdge(false); v.cooldown:SetReverse(true)
     v.cooldown:SetCountdownMillisecondsThreshold(10)
     if v.cooldown.SetCountdownAbbrevThreshold then v.cooldown:SetCountdownAbbrevThreshold(60) end
@@ -239,7 +317,7 @@ local function addGroup(container,c,horizontal,init)
     container:SetFlowLayoutAnchorPoint('TOPLEFT'); container:SetFlowLayoutGrowthDirection(1,-1)
     container:AddAuraGroup('dots','HARMFUL|PLAYER',{maxFrameCount=c.slots,sortMethod=SORT_EXPIRATION,
         sortDirection=SORT_NORMAL,candidateFilters=filters(c),
-        layout=horizontal and layout(P.IconSize(c),P.IconSize(c),ICON_GAP) or layout(200,c.barHeight,BAR_GAP),
+        layout=horizontal and layout(P.IconSize(c),P.IconCell(c),ICON_GAP) or layout(200,c.barHeight,BAR_GAP),
         initializeFrame=init})
 end
 -- Out of restrictions only: native groups, built once per renderer.
@@ -249,7 +327,7 @@ function P.EnsureGroups(row,c)
     if not row.iconGroup then
         local container=row.auras
         container:SetUnit('none')
-        addGroup(container,c,true,function(button) makeIcon(button,row) end)
+        addGroup(container,c,true,function(button) makeIcon(button,row,P.current) end)
         row.iconGroup=true
         container:SetUnit(row.unit)
     end
@@ -291,7 +369,8 @@ local function previewVisuals(row)
     for _,spell in ipairs(row.presentationSpells) do
         local v={spell=spell,duration=(P.Timing(spell.ids[1]))}
         local name,icon=S.API.spell(spell.ids[1])
-        v.icon=row.icons:CreateTexture(nil,'ARTWORK'); v.icon:SetTexture(icon); v.icon:SetTexCoord(ICON_CROP,1-ICON_CROP,ICON_CROP,1-ICON_CROP)
+        v.icon=row.icons:CreateTexture(nil,'ARTWORK'); v.icon:SetTexture(icon)
+        v.shape=shapeParts(row.icons,v.icon,row.icons); v.timeBar=timeBar(row.icons)
         v.timer=text(row.icons,11); v.timer:SetJustifyH('CENTER')
         v.lane=frame('Frame',row.icons)
         v.barIcon=v.lane:CreateTexture(nil,'ARTWORK'); v.barIcon:SetTexture(icon); v.barIcon:SetTexCoord(.08,.92,.08,.92)
@@ -402,8 +481,10 @@ function P.AnimatePreview(rows,now)
             if c.dots=='hud' then
                 if v.placed~=placed then
                     local size=P.IconSize(c)
-                    v.icon:ClearAllPoints(); v.icon:SetPoint('TOPLEFT',row.display,'TOPRIGHT',6+(position-1)*(size+ICON_GAP),-pad)
+                    local x,y,relative=P.IconOrigin(c)
+                    v.icon:ClearAllPoints(); v.icon:SetPoint('TOPLEFT',row.display,relative,x+(position-1)*(size+ICON_GAP),y)
                 end
+                v.timeBar:SetValue(v.fraction)
                 if v.label~=label then v.timer:SetText(label) end
             else
                 if v.placed~=placed then
@@ -536,17 +617,19 @@ function P.GhostIcons(row,byKey)
         local t=row.ghostIcons[key]
         if not t then
             local spell=WH.Effects.PreviewSpellIDs[key]
-            t=row.icons:CreateTexture(nil,'ARTWORK'); t:SetTexCoord(ICON_CROP,1-ICON_CROP,ICON_CROP,1-ICON_CROP)
+            t=row.icons:CreateTexture(nil,'ARTWORK')
             t:SetTexture(spell and select(2,S.API.spell(spell)) or nil); t:SetDesaturated(true)
+            t.shape=shapeParts(row.icons,t,row.icons)
             row.ghostIcons[key]=t
         end
         local shown=byKey and c.dots=='hud' and c.effects[key] and (byKey[key] or 0)>0
         if shown then
             position=position+1
             local size=P.IconSize(c)
-            t:ClearAllPoints(); t:SetPoint('TOPLEFT',row.display,'TOPRIGHT',6+(position-1)*(size+ICON_GAP),-P.Pad(c))
-            t:SetSize(size,size); t:SetAlpha(.85)
-        else t:SetAlpha(0) end
+            local x,y,relative=P.IconOrigin(c)
+            t:ClearAllPoints(); t:SetPoint('TOPLEFT',row.display,relative,x+(position-1)*(size+ICON_GAP),y)
+            t:SetSize(size,size); t:SetAlpha(.85); applyShape(t.shape,c,size); t.shape.frame:Show()
+        else t:SetAlpha(0); t.shape.frame:Hide() end
     end
 end
 -- Does It Die marker on the row's health bar: the same widgets as the
@@ -644,6 +727,7 @@ function P.Row(row,width,_,panelWidth)
     local pad=P.Pad(c)
     local inner=P.Inner(c)
     local size=P.IconSize(c)
+    local cell=P.IconCell(c)
     row.presentationCustom=true
     row.display:SetHeight(header)
     tail(row,c,header)
@@ -704,10 +788,11 @@ function P.Row(row,width,_,panelWidth)
     P.HealthAvailable(row,row.healthAvailable~=false)
     -- Native renderers: only the chosen one is visible.
     if row.auras and not row.preview and row.source~='ghost' then
-        row.auras:ClearAllPoints(); row.auras:SetPoint('TOPLEFT',row.display,'TOPRIGHT',6,-pad)
-        row.auras:SetSize(c.slots*(size+ICON_GAP),size); row.auras:SetAlpha(c.dots=='hud' and 1 or 0)
-        configureGroup(row.auras,c,size,size,ICON_GAP)
-        for _,v in ipairs(row.iconVisuals or {}) do v.button:SetSize(size,size) end
+        local x,y,relative=P.IconOrigin(c)
+        row.auras:ClearAllPoints(); row.auras:SetPoint('TOPLEFT',row.display,relative,x,y)
+        row.auras:SetSize(c.slots*(size+ICON_GAP),cell); row.auras:SetAlpha(c.dots=='hud' and 1 or 0)
+        configureGroup(row.auras,c,size,cell,ICON_GAP)
+        for _,v in ipairs(row.iconVisuals or {}) do v.button:SetSize(size,cell); pcall(styleIcon,v,c,size) end
     end
     local barWidth=math.max(60,fullWidth-inner-pad)
     local bh=c.barHeight
@@ -748,6 +833,8 @@ function P.Row(row,width,_,panelWidth)
         P.PreviewKit(v,c.barStyle=='kit',bh)
         local hud=c.dots=='hud' and v.on
         v.icon:SetSize(size,size); v.icon:SetAlpha(hud and 1 or 0)
+        applyShape(v.shape,c,size); v.shape.frame:SetShown(hud==true)
+        placeTimeBar(v.timeBar,v.icon,size,hud and c.iconTimeBar)
         v.timer:ClearAllPoints(); v.timer:SetPoint('CENTER',v.icon,'CENTER'); v.timer:SetSize(size+4,size)
         v.timer:SetAlpha(hud and 1 or 0)
         v.lane:SetSize(barWidth,bh); v.lane:SetAlpha(c.dots=='equal' and v.on and 1 or 0)
