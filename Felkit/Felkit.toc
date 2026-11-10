@@ -10,6 +10,7 @@
 ## SavedVariablesPerCharacter: FelkitCharDB
 Locale.lua
 LocaleUI.lua
+LocaleFelkit.lua
 Theme.lua
 Data.lua
 Model.lua
@@ -32,6 +33,8 @@ Options.lua
 Onboarding.lua
 Orb.lua
 Kit.lua
+Procs.lua
+Assign.lua
 Auto.lua
 Core.lua
 MultiTarget\Effects.lua

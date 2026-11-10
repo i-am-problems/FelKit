@@ -26,6 +26,8 @@ function M.settings(old)
     for k,p in pairs(M.defaultPositions) do d.positions[k]={x=p.x,y=p.y} end
     -- Felkit: which DoT engine draws enemies (applied at load, so a reload switches).
     d.dotEngine=old.dotEngine=='cards' and 'cards' or 'window'
+    d.procs=S.Procs.settings(old.procs)
+    d.raid=S.Assign.settings(old.raid)
     for k,v in pairs(d) do
         if type(v)=='boolean' and type(old[k])=='boolean' then d[k]=old[k] end
     end

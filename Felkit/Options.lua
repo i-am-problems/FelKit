@@ -810,6 +810,49 @@ function O.syncGeneral(page)
     page.engineNote:SetText(((S.db.dotEngine=='cards')~=(S.legacyEnemies==true)) and L.dotEngineReload or '')
     syncHealth(page)
 end
+-- Felkit: proc timers and raid assignments.
+local function procValue(key,field)
+    return {function() return S.db.procs[key][field] end,function(v) S.db.procs[key][field]=v; apply() end}
+end
+local function procBool(key,field)
+    return {function() return S.db.procs[key][field]==true end,function(v) S.db.procs[key][field]=v==true; apply() end}
+end
+function B.procs(page)
+    local s=newSection(page,'main')
+    local place=s:Card(L.procPlaceTitle,L.procPlaceHelp,nil,I.move)
+    buttonRow(page,place,{
+        {label=L.procTest,key='procTest',icon=I.eye,label_fn=function() return S.Procs.testing and L.kitEditDone or L.procTest end,
+            fn=function() S.Procs.setTest(not S.Procs.testing) end,when=function() return not A.combat() end,kind='primary'},
+        {label=L.procResetBtn,key='procReset',icon=I.reset,fn=function() S.Procs.slash('reset') end,when=function() return not A.combat() end},
+    })
+    for _,def in ipairs(S.Procs.DEFS) do
+        local k=def.key
+        local c=s:Card(L['proc_'..k],L['procHelp_'..k],nil,{spell=def.icon})
+        toggle(page,c,'procs.'..k..'.enabled',L.procEnabled,nil,procBool(k,'enabled'))
+        segment(page,c,'procs.'..k..'.style',L.procStyle,{{value='bar',label=L.procStyle_bar,glyph='bars'},{value='icon',label=L.procStyle_icon,glyph='icons'}},procValue(k,'style'))
+        local isBar=function() return S.db.procs[k].style=='bar' end
+        slider(page,c,'procs.'..k..'.width',L.procWidth,80,400,5,procValue(k,'width'),px,isBar)
+        slider(page,c,'procs.'..k..'.height',L.procHeight,10,40,1,procValue(k,'height'),px,isBar)
+        toggle(page,c,'procs.'..k..'.showName',L.procShowName,nil,procBool(k,'showName'),isBar)
+        slider(page,c,'procs.'..k..'.iconSize',L.procIconSize,20,96,2,procValue(k,'iconSize'),px,function() return not isBar() end)
+        slider(page,c,'procs.'..k..'.alpha',L.opacity,20,100,5,{function() return math.floor(S.db.procs[k].alpha*100+0.5) end,
+            function(v) S.db.procs[k].alpha=v/100; apply() end},pct)
+    end
+end
+local function raidValue(field) return {function() return S.db.raid[field] end,function(v) S.db.raid[field]=v; apply() end} end
+function B.raid(page)
+    local s=newSection(page,'main')
+    local w=s:Card(L.assignTitle,L.assignCardHelp,nil,I.crowd)
+    buttonRow(page,w,{
+        {label=L.assignOpen,key='assignOpen',icon=I.note,fn=function() S.Assign.toggle() end,kind='primary'},
+        {label=L.assignAnnounce,key='assignAnnounce',icon=I.sound,fn=function() S.Assign.announce() end},
+    })
+    local p=s:Card(L.assignPanelCard,L.assignPanelCardHelp,nil,I.kit)
+    toggle(page,p,'raid.panel',L.assignShowPanel,nil,{function() return S.db.raid.panel end,function(v) S.db.raid.panel=v==true; apply() end})
+    segment(page,p,'raid.size',L.assignButtonSize,{{value='small',label=L.assignSmall},{value='full',label=L.assignFull}},raidValue('size'))
+    slider(page,p,'raid.x',L.assignOffsetX,-400,400,2,raidValue('x'),px)
+    slider(page,p,'raid.y',L.assignOffsetY,-200,400,2,raidValue('y'),px)
+end
 O.NAV={
     {key='home',icon=I.seal,build=B.home,sync=function(p) O.syncHome(p) end},
     -- Enemies & DoTs = Warlock HUD's Multi-Target window; the former cards page
@@ -821,11 +864,13 @@ O.NAV={
         tabIcons={display=I.reveal,timers=I.timer,health=I.health,frame=I.move,advanced=I.engine,did=I.target}},
     {key='nightfall',group='combat',icon=I.nightfall,build=B.nightfall,
         master=function() return bool('nightfall') end,module=function() return S.db.nightfall end},
+    {key='procs',group='combat',icon=I.timer,build=B.procs},
     {key='channels',group='combat',icon=I.channels,build=B.channels,
         master=function() return bool('channels') end,module=function() return S.db.channels end},
     {key='kit',group='tools',icon=I.kit,build=B.kit,sync=function(p) O.syncKit(p) end,
         master=function() return kitBool('enabled') end,module=function() return S.db.kit.enabled end,tabs={'layout','buttons','reminders','summons'},
         tabIcons={layout=I.move,buttons=I.kit,reminders=I.note,summons=I.summon}},
+    {key='raid',group='tools',icon=I.crowd,build=B.raid},
     {key='shards',group='tools',icon=I.shards,build=B.shards,sync=function(p) O.syncShards(p) end,
         master=function() return bool('shards') end,module=function() return S.db.shards end},
     {key='grimoire',group='tools',icon=I.grimoire,build=B.grimoire,sync=function() O.renderCatalogue() end,

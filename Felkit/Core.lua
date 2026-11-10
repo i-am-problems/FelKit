@@ -178,6 +178,8 @@ function S.refreshAll()
     if S.WH and S.WH.refresh then S.WH.refresh() end
     if U.refreshDetail then U.refreshDetail() end
     if S.Kit then S.Kit.refresh() end
+    if S.Procs then S.Procs.refresh() end
+    if S.Assign then S.Assign.apply() end
     S.Ticks.syncGuard()
     if S.Options then S.Options.refresh() end
 end
@@ -300,6 +302,8 @@ local function slash(text)
     elseif text=='dots' then U.open('enemies')
     elseif text=='did' or text:match('^did ') then
         if S.DID and S.DID.command then S.DID.command(text:sub(5)) end
+    elseif text=='procs' or text:match('^procs%s') then S.Procs.slash(text:sub(6))
+    elseif text=='assign' or text=='assignments' then S.Assign.toggle()
     elseif text=='setup' then S.Onboarding.open(true)
     elseif text=='auto on' or text=='auto off' then
         S.db.autoShards=text=='auto on'; S.db.shardRefused={}
@@ -357,7 +361,7 @@ events:SetScript('OnEvent',function(_,event,arg,arg2,arg3,arg4)
         FelkitDB=S.Model.settings(FelkitDB); S.db=FelkitDB
         S.legacyEnemies=S.db.dotEngine=='cards' or nil
         S.builtLanguage=S.applyLocale(S.db.language)
-        U.create(); S.ready=true; S.Kit.create(); S.Spells.setupTooltips()
+        U.create(); S.ready=true; S.Kit.create(); S.Procs.create(); S.Assign.create(); S.Spells.setupTooltips()
         SLASH_FELKIT1='/felkit'
         local collision=false
         for k,v in pairs(_G) do
