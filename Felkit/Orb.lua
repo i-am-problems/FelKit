@@ -51,7 +51,8 @@ function O.skin(b,size)
     texts(b,on and b.orbRingHost or b)
     if on then
         b:SetBackdropColor(0,0,0,0); b:SetBackdropBorderColor(0,0,0,0)
-        b.icon:ClearAllPoints(); b.icon:SetPoint('TOPLEFT',2,-2); b.icon:SetPoint('BOTTOMRIGHT',-2,2)
+        -- The icon fills the button; the round mask leaves it just inside the ring.
+        b.icon:ClearAllPoints(); b.icon:SetAllPoints(b)
         if not b.orbMasked then b.icon:AddMaskTexture(b.orbMask); b.orbMasked=true end
         b.orbBack:SetSize(size,size); b.orbRing:SetSize(size*1.18,size*1.18)
         b.orbHighlight:SetSize(size*1.5,size*1.5); b.orbHighlight:Show()
@@ -109,6 +110,11 @@ function O.skinCounter()
         c.orbRing=host:CreateTexture(nil,'OVERLAY'); c.orbRing:SetTexture(MEDIA..'fk_orb_ring'); c.orbRing:SetPoint('CENTER')
         c.orbHalo=shard:CreateTexture(nil,'BACKGROUND',nil,-4); c.orbHalo:SetTexture(MEDIA..'fk_glow_fel')
         c.orbHalo:SetBlendMode('ADD'); c.orbHalo:SetPoint('CENTER'); c.orbHalo:SetAlpha(0.35)
+        -- Centre art over the glass: drawn on the button, under the ring and the count.
+        c.orbArt=shard:CreateTexture(nil,'ARTWORK',nil,2); c.orbArt:SetPoint('CENTER')
+        c.orbArtMask=shard:CreateMaskTexture()
+        c.orbArtMask:SetTexture(MEDIA..'fk_mask','CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
+        c.orbArtMask:SetAllPoints(c.orbArt)
     end
     local on=O.on()
     c.orbHost:SetShown(on); c.orbHalo:SetShown(on and S.db.kit.orbGlow~=false)
@@ -121,7 +127,12 @@ function O.skinCounter()
         c.orbRing:SetSize(size*1.16,size*1.16); c.orbHalo:SetSize(size*1.9,size*1.9)
         c.text:SetParent(c.orbHost)
         if c.halo then c.halo:SetTexture(MEDIA..'fk_glow'); c.halo:SetDrawLayer('BACKGROUND',-3) end
+        O.centreArt(c,size)
+        O.countPosition(c,size)
     else
+        c.orbArt:Hide()
+        c.text:ClearAllPoints(); c.text:SetPoint('CENTER',0,0); c.text:SetAlpha(1)
+        if c.text.SetTextScale then pcall(c.text.SetTextScale,c.text,1) end
         c:SetSize(46,46)
         local icon=C_Item and A.call(C_Item.GetItemIconByID,6265)
         shard:SetNormalTexture(icon or 'Interface\\Icons\\INV_Misc_Gem_Amethyst_02')
@@ -129,6 +140,39 @@ function O.skinCounter()
         c.text:SetParent(shard)
         if c.halo then c.halo:SetTexture('Interface\\Buttons\\UI-ActionButton-Border'); c.halo:SetDrawLayer('OVERLAY') end
     end
+end
+
+-- Centre art: Felkit's own crystal shards, or the game's Soul Shard or class icon.
+function O.centreArt(c,size)
+    local art=S.db.kit.orbArt or 'fel'
+    local t=c.orbArt
+    if c.orbArtMasked then t:RemoveMaskTexture(c.orbArtMask); c.orbArtMasked=nil end
+    t:SetTexCoord(0,1,0,1); t:SetVertexColor(1,1,1)
+    if art=='fel' or art=='shadow' then
+        t:SetTexture(MEDIA..'fk_shard_'..art); t:SetSize(size*1.05,size*1.05)
+    elseif art=='item' then
+        local icon=C_Item and A.call(C_Item.GetItemIconByID,6265)
+        t:SetTexture(icon or 'Interface\\Icons\\INV_Misc_Gem_Amethyst_02'); t:SetSize(size*0.72,size*0.72)
+        t:SetTexCoord(0.07,0.93,0.07,0.93); t:AddMaskTexture(c.orbArtMask); c.orbArtMasked=true
+    elseif art=='class' then
+        local coords=CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS.WARLOCK
+        t:SetTexture('Interface\\TargetingFrame\\UI-Classes-Circles'); t:SetSize(size*0.74,size*0.74)
+        if coords then t:SetTexCoord(coords[1],coords[2],coords[3],coords[4]) end
+    else t:Hide(); return end
+    t:Show()
+end
+-- Shard count: in the middle, small in the bottom-right corner, or hidden.
+function O.countPosition(c,size)
+    local pos=S.db.kit.countPos or 'middle'
+    c.text:ClearAllPoints()
+    if pos=='corner' then
+        c.text:SetPoint('CENTER',c.icon,'BOTTOMRIGHT',-size*0.12,size*0.14)
+        if c.text.SetTextScale then pcall(c.text.SetTextScale,c.text,0.62) end
+    else
+        c.text:SetPoint('CENTER',0,0)
+        if c.text.SetTextScale then pcall(c.text.SetTextScale,c.text,1) end
+    end
+    c.text:SetAlpha(pos=='hidden' and 0 or 1)
 end
 
 -- Placement --------------------------------------------------------------------------
