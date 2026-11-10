@@ -992,8 +992,15 @@ end
 -- from the same token feeds another DoT, one from another token is a copy and is dropped (PR #14).
 local combatFrameAt
 local combatFrameHits = {}
+-- Felkit: when the last readable hit on a mob was seen. On Forever, UNIT_COMBAT is secret in combat, so ticks
+-- can't be seen there: a DoT only counts a tick as missed when hits on its mob were readable after it went on.
+local readableAt = {}
 local function onUnitCombat(unit, action, flag, amount, school)
     if isSecret(action) then return end
+    if not isSecret(amount) and type(amount) == "number" then
+        local k = unitKey(unit)
+        if k then readableAt[k] = GetTime() end
+    end
     -- A fully absorbed tick still landed (a shield ate it): it proves the DoT is on and keeps its rhythm, so ABSORB
     -- matches like WOUND, but a 0 never feeds tick sizes. With two DoTs it could be, it's ignored.
     local absorbed = action == "ABSORB"
@@ -1094,7 +1101,9 @@ local function housekeep(now)
             while dot.nextTickAt < now - TICK_MATCH_WINDOW - late and dot.nextTickAt <= dot.expiresAt do
                 dot.nextTickAt = dot.nextTickAt + dot.interval
                 -- Only a tick that could have been seen counts as missed.
-                if dot.ticksSeen == 0 and isObservable(key) then dot.missed = dot.missed + 1 end
+                if dot.ticksSeen == 0 and isObservable(key) and (readableAt[key] or 0) > (dot.appliedAt or 0) then
+                    dot.missed = dot.missed + 1
+                end
             end
             if now > dot.expiresAt + TICK_MATCH_WINDOW then
                 dots[name] = nil

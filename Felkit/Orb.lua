@@ -169,6 +169,7 @@ function O.centreArt(c,size)
     t:SetTexCoord(0,1,0,1); t:SetVertexColor(1,1,1)
     if art=='arcane' or art=='fel' or art=='shadow' then
         t:SetTexture(MEDIA..'fk_shard_'..art); t:SetSize(size*1.2,size*1.2)
+        if S.db.kit.orbArtFlip~=false then t:SetTexCoord(1,0,0,1) end
     elseif art=='item' then
         local icon=C_Item and A.call(C_Item.GetItemIconByID,6265)
         t:SetTexture(icon or 'Interface\\Icons\\INV_Misc_Gem_Amethyst_02'); t:SetSize(size*0.72,size*0.72)

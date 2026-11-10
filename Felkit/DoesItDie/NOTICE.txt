@@ -56,3 +56,6 @@ Changes made for Warlock All-in-One (every Lua file states it was modified):
    Nameplates.lua: the 40-plate scan only runs while a DoT or cast estimate is
    tracked; widgets are hidden once; a plate's style is rebuilt only when the
    look's version (db.styleVersion, set by Glue.lua) changes.
+
+Felkit change: a DoT is only dropped as "never ticked" when hits on its mob were readable after it was applied
+(UNIT_COMBAT is secret in combat on Forever, so unseen ticks no longer count as missed).

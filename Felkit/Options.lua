@@ -552,6 +552,7 @@ function B.kit(page)
         {value='item',label=L.kitArt_item},{value='class',label=L.kitArt_class},{value='none',label=L.kitArt_none}},kitValue('orbArt'))
     segment(page,orb,'kit.countPos',L.kitCountPos,{{value='middle',label=L.kitCount_middle},{value='corner',label=L.kitCount_corner},
         {value='hidden',label=L.kitCount_hidden}},kitValue('countPos'))
+    toggle(page,orb,'kit.orbArtFlip',L.kitOrbArtFlip,nil,kitBool('orbArtFlip'))
     local ringOpts={{value='purple',label=L.color_purple},{value='gold',label=L.color_gold},{value='silver',label=L.color_silver},
         {value='fel',label=L.color_fel},{value='cyan',label=L.color_cyan}}
     segment(page,orb,'kit.ringColor',L.kitRingColor,ringOpts,kitValue('ringColor'))

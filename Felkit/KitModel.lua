@@ -34,6 +34,7 @@ function M.settings(old)
  -- One time: the first builds defaulted to the fel shard; move to the arcane crystal.
  if old.orbArtVersion==nil then d.orbArt='arcane' end
  d.orbArtVersion=2
+ d.orbArtFlip=old.orbArtFlip~=false
  local rings={purple=true,gold=true,silver=true,fel=true,cyan=true}
  d.ringColor=rings[old.ringColor] and old.ringColor or 'purple'
  d.orbRingColor=rings[old.orbRingColor] and old.orbRingColor or 'gold'
