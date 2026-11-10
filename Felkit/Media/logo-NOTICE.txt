@@ -1,0 +1,15 @@
+logo.tga (128 px) and logo-small.tga (32 px) are the add-on's seal: a local
+composition of World of Warcraft icons inside a drawn gold and violet ring.
+
+Icons used (Blizzard Entertainment, Inc.):
+- Interface/Icons/ClassIcon_Warlock (file 626007, original 64 px client art, rim cropped)
+- Spell_Shadow_SoulGem, Spell_Shadow_AbominationExplosion, Spell_Shadow_Twilight,
+  INV_Stone_04 (56 px renders from the public Wowhead icon CDN)
+
+World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered
+trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.
+The icons remain Blizzard's; the add-on's MIT license covers its code only and is
+not asserted to relicense this art.
+
+Local transformation: smooth bicubic upscale, circular masks, ring drawn locally,
+downscaled with Lanczos; uncompressed 32-bit TGA, bottom-left origin.

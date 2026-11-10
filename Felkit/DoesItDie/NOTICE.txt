@@ -1,0 +1,58 @@
+Does It Die — third-party code notice
+
+The files in this folder, except Glue.lua, come from DoesItDie v0.8.2 by Joe
+Greive (CurseForge project 1709161), licensed under the MIT License (copy in
+LICENSE next to this file). Glue.lua is original Warlock All-in-One code (MIT,
+see the add-on LICENSE) that also contains, unchanged, the colour, icon and fill
+tables and the dotColor/colorOf/findById helpers of DoesItDie's Display.lua.
+
+Source files (installed copy read on 2026-10-22):
+DoesItDie.lua    sha256 78526c60fa56f2290403468da9197a0cdb9157bd4e51f562c1ba58b05e566ebb  -> Tracking.lua
+Locale.lua       sha256 863888e62bf6f0330b7f71b7d84ba22c17ab31a53fdad2e9958b33b9b750c5fd
+Locale_deDE.lua  sha256 28eafeea7165f87ae84b813687bf747b72ddba9cdaea44da3ed0fa6c55f4c09d
+Locale_esES.lua  sha256 188b2b24b7d0e6fc33ddd4621967f9e06dd0aae6508eb73cf506fa2a648e0dc1
+Locale_frFR.lua  sha256 a055532da62299242cd2792afe5bef436a6e00957b7d8552731209bb2a439ef2
+Locale_koKR.lua  sha256 2fbd267ecc3369bc1c2013e011696ce5a64441dccfc4ef8502d4d373fc2f8009
+Nameplates.lua   sha256 f8440e0dc3392ef5122c4c32b4d0eb2cb3e7ba10ba52bf08dcf484044ed7a0de
+Display.lua      sha256 4aab88a89003fb30a7a82900525a3a25bbc6407e12e3853701fdd08828470a3f  (tables only, in Glue.lua)
+LICENSE          sha256 b04405271378a0203d58b57e94c4a5709b4ceec1f448824c8ff87c5575588f44
+Textures/DashH1..16, DashV1..16, Stripes copied unchanged
+(DashH1 sha256 bf8fca7700a5821b064e7669c31dbabdf7d42d20386ce30c6a9d5b8335a1de59,
+ Stripes sha256 624c6999d340ce05977a0f745e2d773041c103b307fcedba7f8900a5647cfe2b).
+
+Not included: Display.lua (marker on Blizzard's target frame), Frames.lua,
+Focus.lua, Execute.lua, Options.lua and the other textures.
+
+Changes made for Warlock All-in-One (every Lua file states it was modified):
+1. Each file starts with a provenance header and keeps DoesItDie's own
+   namespace inside the add-on (S.DID instead of the add-on table).
+2. Tracking.lua (DoesItDie.lua): saved data in its own variable instead of
+   DoesItDieDB; chat prefix names Warlock All-in-One; no options window and no
+   target frame attachment at load; the /did command is replaced by
+   S.DID.command (reached with /waio did plates|debug|reset), so the
+   original add-on can be installed alongside. The tracking itself is unchanged.
+3. Nameplates.lua: drawn only while the Warlock All-in-One "nameplates" switch
+   is on and the original DoesItDie add-on is not loaded (no double marker);
+   the kill icon shows unless the mode is "marker". Unchanged otherwise.
+4. The marker and kill icon (S.DID.barMarker) are also drawn on the health bars
+   of the Warlock All-in-One DoT table (MultiTarget/Presentation.lua).
+5. Tracking.lua (0.7.2): a DoT whose description no registered language reads
+   (Italian, Portuguese, Russian, Chinese clients) falls back to the add-on's
+   locale-free spell data (S.DID.spellData) for its total, school, duration and
+   tick interval.
+6. Tracking.lua (0.7.3): the add-on's spell data comes FIRST, in every language
+   (readDot): it is the player's real total (spell power, talents, rank, DB2
+   duration and tick interval), while descriptions leave spell power out.
+   Descriptions stay for spells it does not know, finishers and DoTs without a
+   total. Such a DoT is not "unsure"; before its first observed tick it is
+   predicted and judged by that total's share per tick, not by a tick size
+   learned in an earlier fight; observed ticks still take over as before.
+7. 0.7.4: saved data in WarlockAllInOneDIDDB. Fewer game API calls:
+   Tracking.lua stays idle while neither the DoT table bars nor the nameplates
+   use it (tracked DoTs are forgotten when it turns off); the diagnostic log is
+   trimmed by batches of 100 lines (up to 600 lines kept); whether a spell is a
+   finisher is remembered per spell ID; combo point power events are only
+   followed for rogues and druids; the empty breakdown is one shared table.
+   Nameplates.lua: the 40-plate scan only runs while a DoT or cast estimate is
+   tracked; widgets are hidden once; a plate's style is rebuilt only when the
+   look's version (db.styleVersion, set by Glue.lua) changes.

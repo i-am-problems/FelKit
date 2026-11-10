@@ -1,0 +1,113 @@
+Multi-Target DoTs window — third-party code notice
+
+The Lua files Effects.lua, Identity.lua, Layout.lua, Probe.lua, Damage.lua
+and Window.lua (Auras.lua until 0.6.20) in this folder come from Warlock HUD 0.43.0
+(CurseForge project 1727219), licensed under the Apache License, Version 2.0
+(copy in LICENSE next to this file). Warlock HUD has no NOTICE file.
+Adapter.lua is original Warlock All-in-One code (MIT, see the add-on LICENSE).
+
+Source files (installed copy read on 2026-10-17):
+Warlock_Hud_Effects.lua  sha256 4cf2cec6ffe1c5d6523bc3d280d7449e4b12ff4e2a0ee4125fa06cebf4740e85
+Warlock_Hud_MultiTargetIdentity.lua  sha256 92433b0d5bf83650f090dca621c71d66a842fd4e48117cac1f6804a44f06fecb
+Warlock_Hud_MultiTargetLayout.lua  sha256 772ce0d0b8eaffd0422a80e134ef034f4eadb19395fcda3968438a90c251fd9b
+Warlock_Hud_MultiTargetAuras.lua  sha256 133f2bf2612ed193f2b3ef442a4a932c88e5d2dd55fbcbdc4f1387c8eadb427a
+Warlock_Hud_MultiTargetProbe.lua  sha256 99c160e6e42283761ef4019e1b5c3143881aad3f5bf2a69647f6e5ca7330732f
+Warlock_Hud_MultiTargetDamage.lua  sha256 61a281c1e86cf53c1c2be3908c5aa486ffd0ef6521f68ce5cc33745a569e719c
+Warlock_Hud_MultiTarget.lua  sha256 fafa7ccd9317535b3c6eff7693f7f82742b7a114bd98045738e37111fba2615d
+
+Changes made for Warlock All-in-One (every file states it was modified):
+1. Each file starts with a provenance header and receives the add-on namespace
+   (local _, S = ...).
+2. Globals WarlockHud* became fields of S.WH (WarlockHudAPI -> S.WH.API), and
+   frame/font names "WarlockHud*" became "WarlockAllInOneWH*", so both add-ons
+   can be loaded together without overwriting each other.
+3. Window.lua: the window title, status lines and the last-seen label use the
+   add-on's translated strings (8 languages); chat prefix "Warlock HUD:" became
+   "Warlock All-in-One:"; the help command points to /waio diagnostics;
+   a read-only State() accessor reports whether the window is built or failed.
+4. Damage.lua: the cast estimate first uses the locale-free total computed from
+   the spell ID (S.Spells.periodic) before Warlock HUD's own description,
+   learned-tick, calibration and fallback sources, which are unchanged.
+Settings, profile access, known-spell checks and the
+enable switch are provided by Adapter.lua instead of Warlock HUD's core.
+
+Local hybrid presentation changes, 2026-10-18:
+5. Presentation.lua is new, original MIT code. It provides independent enemy/
+   health and DoT styles, using the existing per-row source tokens. Native bars
+   use the original personal spell-ID filters, split by public timing profile.
+6. Window.lua connects that view without retiring/rebinding the existing rows
+   on a style change; forwards target/token invalidations to the native bar view;
+   shows unknown duration for last-seen rows instead of inventing aura timers.
+   Window chrome, visibility controller, source list and retention rules remain.
+7. Layout.lua reserves variable public row heights and scroll capacity for bars.
+8. Identity.lua delegates health text/color to the selected presentation and
+   offers a health-only repaint. Eligibility, identity and deduplication are unchanged.
+9. Damage.lua leaves the historic health format and hidden health/portrait
+   visuals alone in the All-in-One view. Damage estimation and retention data
+   are unchanged. See docs/MULTITARGET-PRESENTATION.md for limits and validation.
+
+Options audit, 2026-10-18 (0.6.6):
+10. Window.lua/Auras.lua cache slots by source/effect and retain cooldown handles;
+    family and countdown-format changes no longer retire the window. Lazy slots
+    keep the same personal spell-ID filters and source bindings.
+11. Window.lua applies real window scale, normalizes screen-space position and
+    reserves requested health width. Health/name text is layered above the fill.
+12. Identity.lua delegates selected-target decoration to applied preferences.
+    Layout.lua/Presentation.lua use the applied execute setting and health state.
+    No identity, admission, deduplication, retention or damage calculation changes.
+13. Adapter.lua exposes known-family availability for disabled-option help;
+    the existing effect-selection rules remain unchanged.
+See docs/MULTITARGET-OPTIONS-AUDIT.md for the full matrix and proof boundaries.
+
+0.6.9: shared visual row construction and isolated public preview rows for live
+settings, without native aura bindings or changes to identity/damage tracking.
+
+0.6.10: background-only opacity and full-window surface control; AIO portraits,
+three distinct layouts, separate effect labels and shared public duration scale;
+frame-rate synthetic animation and targeted health event updates.
+
+0.6.14: coalesce identity events at 100 ms; move existing rows without rebuilding
+their presentation; stop explicitly disabled tracking/damage/native containers,
+retain tracking when merely hidden; short-circuit admission evidence, cache public
+raid markers per pass, deduplicate public GUIDs without redundant unit comparisons,
+and avoid repeated clears/health text writes for rows without tracked damage.
+
+0.7.0 (2026-10-22): DoT table redesign.
+- Auras.lua removed: its per-spell slots at fixed positions are replaced by one
+  native aura group per renderer (Presentation.lua), sorted by the game by
+  expiry (ExpirationOnly, normal direction) and filtered by spell IDs.
+- Presentation.lua rewritten (original MIT code): one health bar style, Warlock
+  HUD icons or equal-width bars, health height, name and icon switches, yellow
+  target line, transparent frame, header switch, Does It Die marker.
+- Window.lua: header (title, count, X, grip) can be hidden; ghost rows show
+  estimated families through the presentation; fixed dot order removed.
+- Layout.lua: icon column width and top inset come from the presentation.
+- Identity.lua: a hidden UnitIsUnit answer is decided by public GUIDs, else drawn
+  natively (SetAlphaFromBoolean) on the target line. Admission, deduplication,
+  retention and damage estimation are unchanged.
+
+0.7.1 (2026-10-22):
+- Click.lua is new, original MIT code: secure target buttons over the health
+  bars, on their own holder, placed out of combat.
+- Layout.lua: equal-width rows hang from the previous row's native group (the
+  game sizes it), absent rows park out of view; HUD rows keep their places in
+  combat while click targeting is on.
+- Window.lua: rows use the layout template (they may hang from a native group);
+  the list does not scroll in combat while click targeting is on.
+
+0.7.4 (2026-10-22): fewer game API calls (same rules for admission and display).
+- Identity.lua: the group (members, their targets, public GUIDs) is read once per
+  pass and only as far as needed; a token's GUID is read once per frame; raid
+  markers stay cached until RAID_TARGET_UPDATE, GROUP_ROSTER_UPDATE or the end of
+  combat; health events only feed the bar and its text (name and colour come with
+  the identity pass); unchanged marker, name colour and icon alpha are not set again.
+- Window.lua: a group member's target change refreshes its target row and the
+  enemy rows only; threat between the group and enemies refreshes the enemy rows;
+  an aura or flag event refreshes its own row. A refresh with no changed setting
+  keeps the rows; ghost rows set their last-seen snapshot once; unit events are
+  unregistered while the window is off; live Does It Die markers wait while the
+  window is hidden.
+- Damage.lua: the Warlock All-in-One bar shows no damage segments, so their
+  per-row work is skipped (estimates for ghost rows are kept).
+- Click.lua (original MIT code): buttons move only when their place changes;
+  placement slows to once a second when nothing moves and stops while disabled.

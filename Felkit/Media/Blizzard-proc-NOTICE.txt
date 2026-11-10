@@ -1,0 +1,17 @@
+blizzard-proc-boost.wav is a locally amplified derivative of the original Blizzard
+Spell Alert recording UI_PowerAura_Generic.ogg (UI_POWER_AURA_GENERIC, kit 23287).
+
+Original sound: Blizzard Entertainment, Inc.
+World of Warcraft(R): Cataclysm(R)
+(c)2010 Blizzard Entertainment, Inc. All rights reserved. Cataclysm is a trademark,
+and World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or
+registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.
+
+Source copy: ennvina/spellactivationoverlay, commit
+15184acd170d2b79769c1a8082d402b826094799, sounds/UI_PowerAura_Generic.ogg.
+The upstream addon explicitly credits this audio to Blizzard; its MIT license
+for addon code is preserved separately and is not asserted to relicense Blizzard audio.
+
+Local transformation: decoded mono PCM, original 22050 Hz/sample count retained,
+gain x2 (+6.02 dB) before a soft peak limiter (0.98 ceiling), no pitch or timing change.
+No upstream Lua code copied. See docs/nightfall-audio-provenance.json for hashes.

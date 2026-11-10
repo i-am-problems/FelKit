@@ -1,0 +1,17 @@
+<Bindings>
+ <Binding name="CLICK FelkitShardIcon:LeftButton" header="FELKIT"/>
+ <Binding name="CLICK FelkitKithealth:LeftButton"/>
+ <Binding name="CLICK FelkitKitsoul:LeftButton"/>
+ <Binding name="CLICK FelkitKitdemon:LeftButton"/>
+ <Binding name="CLICK FelkitKitsacrifice:LeftButton"/>
+ <Binding name="CLICK FelkitKitlink:LeftButton"/>
+ <Binding name="CLICK FelkitKitdomination:LeftButton"/>
+ <Binding name="CLICK FelkitKitcurse1:LeftButton"/>
+ <Binding name="CLICK FelkitKitcurse2:LeftButton"/>
+ <Binding name="CLICK FelkitKitward:LeftButton"/>
+ <Binding name="CLICK FelkitKitarmor:LeftButton"/>
+ <Binding name="CLICK FelkitKitweapon:LeftButton"/>
+ <Binding name="CLICK FelkitKitsummon:LeftButton"/>
+ <Binding name="CLICK FelkitKitutility:LeftButton"/>
+ <Binding name="CLICK FelkitQueueToggle:LeftButton"/>
+</Bindings>

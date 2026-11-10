@@ -1,0 +1,5 @@
+sfx-*.wav (crystal, sweep, drop, bell, duo, arpeggio, gong, shimmer, heartbeat, whoosh,
+kalimba, horn, zap)
+
+Original sounds fully synthesized by tools/build_proc_sounds.py for Warlock All-in-One.
+No sampled, Blizzard or third-party audio is used. Same licence as the addon (MIT).

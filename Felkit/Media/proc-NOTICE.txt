@@ -1,0 +1,5 @@
+proc-flame, proc-runes, proc-bolt, proc-crystal, proc-vortex, proc-felfire, proc-smoke,
+proc-embers, proc-glow and proc-spark (.tga)
+
+Original artwork drawn procedurally by tools/build_proc_textures.py for Warlock All-in-One.
+No Blizzard or third-party image is used. Same licence as the addon (MIT).

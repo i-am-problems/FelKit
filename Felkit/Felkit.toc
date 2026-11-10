@@ -1,0 +1,48 @@
+## Interface: 16001
+## Title: Felkit
+## Notes: Warlock toolkit for WoW Forever: shard orb kit, DoT timers, proc timers, reminders, raid assignments, grimoire.
+## Author: RT Labs
+## X-Credits: Built on Warlock All-in-One by Vitam (MIT), Warlock HUD multi-target window (Apache 2.0), Does It Die by Joe Greive (MIT)
+## IconTexture: Interface\AddOns\Felkit\Media\logo
+## Version: 0.1.0
+## Category: Class
+## SavedVariables: FelkitDB, FelkitDIDDB
+## SavedVariablesPerCharacter: FelkitCharDB
+Locale.lua
+LocaleUI.lua
+Theme.lua
+Data.lua
+Model.lua
+API.lua
+SpellData.lua
+TalentData.lua
+Talents.lua
+Spells.lua
+KitData.lua
+KitModel.lua
+KitStatus.lua
+Ticks.lua
+Timing.lua
+Tracker.lua
+Nightfall.lua
+NativeDots.lua
+UI.lua
+CardClick.lua
+Options.lua
+Onboarding.lua
+Kit.lua
+Auto.lua
+Core.lua
+MultiTarget\Effects.lua
+MultiTarget\Adapter.lua
+MultiTarget\Presentation.lua
+MultiTarget\Identity.lua
+MultiTarget\Layout.lua
+MultiTarget\Probe.lua
+MultiTarget\Damage.lua
+MultiTarget\Click.lua
+MultiTarget\Window.lua
+DoesItDie\Locale.lua
+DoesItDie\Tracking.lua
+DoesItDie\Glue.lua
+DoesItDie\Nameplates.lua

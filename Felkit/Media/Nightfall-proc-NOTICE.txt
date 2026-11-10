@@ -1,0 +1,21 @@
+nightfall-proc-original.ogg is the unmodified game sound file 569668, published at
+https://wow.zamimg.com/wowsounds/569668. Original audio: Blizzard Entertainment, Inc.
+All rights reserved. This asset is not covered by the addon's MIT code license.
+
+Build 1.60.1.70425 public client-table mapping:
+Spell 17941 (Shadow Trance / Nightfall proc) -> SpellVisual 5219 ->
+SpellVisualKit 4569 -> SoundKit 3219 -> FileDataID 569668.
+Full rows and table/source hashes: docs/nightfall-audio-provenance.json.
+
+nightfall-proc-boost.wav is a locally amplified PCM derivative, gain x2 before
+soft peak limiting (ceiling 0.98); same 22050 Hz and 72723 samples, pitch unchanged.
+nightfall-proc-10.wav through nightfall-proc-90.wav attenuate that derivative.
+Those recordings are the legacy 0.4.19 levels, now inactive.
+
+Current stronger levels: nightfall-proc-strong.wav uses gain x4 before the same
+0.98 peak limiter. nightfall-strong-10.wav through nightfall-strong-90.wav attenuate
+that recording. 0% performs no playback; 100% uses the stronger recording.
+Original source, duration and pitch are unchanged. No additional sound is layered.
+
+The generic UI_POWER_AURA_GENERIC sound (23287) used in releases 0.4.11-0.4.17
+is no longer selected. Legacy assets and their notices are retained but inactive.
