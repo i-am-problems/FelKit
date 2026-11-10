@@ -69,7 +69,7 @@ function O.skin(b,size)
             b.halo:SetParent(b.orbRingHost); b.halo:SetTexture(MEDIA..'fk_glow_ring')
             b.halo.ringGlow=true; b.halo:SetDrawLayer('OVERLAY',3); b.halo:SetBlendMode('ADD'); b.halo:SetVertexColor(a[1],a[2],a[3])
         end
-        b.time:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',math.max(9,math.floor(size*0.3)),'OUTLINE')
+        b.time:SetFont(S.font(),math.max(9,math.floor(size*0.3)),S.fontOutline())
         b.time:ClearAllPoints(); b.time:SetPoint('CENTER',0,0)
         b.count:ClearAllPoints(); b.count:SetPoint('BOTTOMRIGHT',b,'BOTTOMRIGHT',2,-2)
         O.border(b,'normal')
@@ -85,7 +85,7 @@ function O.skin(b,size)
             b.halo:SetParent(b); b.halo:SetTexture('Interface\\Buttons\\UI-ActionButton-Border')
             b.halo.ringGlow=nil; b.halo:SetDrawLayer('OVERLAY'); b.halo:SetBlendMode('ADD'); b.halo:SetVertexColor(1,0.62,0.12)
         end
-        b.time:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',10,'OUTLINE')
+        b.time:SetFont(S.font(),10,S.fontOutline())
         b.time:ClearAllPoints(); b.time:SetPoint('BOTTOM',0,2)
         b.count:ClearAllPoints(); b.count:SetPoint('TOPRIGHT',-2,-2)
     end

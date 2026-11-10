@@ -11,6 +11,7 @@
 Locale.lua
 LocaleUI.lua
 LocaleFelkit.lua
+Media.lua
 Theme.lua
 Data.lua
 Model.lua

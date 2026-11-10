@@ -46,7 +46,7 @@ local function restricted()
     return A.combat() or (C_Secrets and C_Secrets.ShouldAurasBeSecret and A.call(C_Secrets.ShouldAurasBeSecret)==true)
 end
 local function font(t,size)
-    t:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',size,'OUTLINE')
+    t:SetFont(S.font(),size,S.fontOutline())
 end
 
 -- Visual pieces, shared by the native slots and the public test frame --------------

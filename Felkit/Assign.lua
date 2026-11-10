@@ -200,7 +200,7 @@ local function secureButton(parent)
     b.mask:SetAllPoints(b); b.icon:AddMaskTexture(b.mask)
     b.ring=b:CreateTexture(nil,'OVERLAY'); b.ring:SetTexture(MEDIA..'fk_ring_n'); b.ring:SetPoint('CENTER')
     b.mark=b:CreateTexture(nil,'OVERLAY',nil,2); b.mark:SetPoint('TOPRIGHT',4,4)
-    b.text=b:CreateFontString(nil,'OVERLAY'); b.text:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',10,'OUTLINE')
+    b.text=b:CreateFontString(nil,'OVERLAY'); b.text:SetFont(S.font(),10,S.fontOutline())
     b.text:SetPoint('TOP',b,'BOTTOM',0,-2)
     local hl=b:CreateTexture(nil,'HIGHLIGHT'); hl:SetTexture(MEDIA..'fk_glow_fel'); hl:SetBlendMode('ADD'); hl:SetPoint('CENTER')
     b.hl=hl
@@ -216,7 +216,7 @@ function AS.createPanel()
     local p=CreateFrame('Frame','FelkitAssignPanel',S.UI.counter); AS.panel=p
     p:SetSize(1,1); p.buttons={}
     for i,key in ipairs({'curse','control','ss'}) do p.buttons[key]=secureButton(p) end
-    p.title=p:CreateFontString(nil,'OVERLAY'); p.title:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',10,'OUTLINE')
+    p.title=p:CreateFontString(nil,'OVERLAY'); p.title:SetFont(S.font(),10,S.fontOutline())
     p.title:SetTextColor(.66,.42,1); p.title:SetText(S.L.assignPanelTitle)
     p:Hide()
 end

@@ -3,7 +3,7 @@
 local _,S=...
 local U={}; S.UI=U
 local L,A,T=S.L,S.API,S.Theme
-local function font() return STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF' end
+local function font() return S.font() end
 local function label(parent,text,x,y,width,size)
     local f=parent:CreateFontString(nil,'OVERLAY','GameFontNormal')
     f:SetPoint('TOPLEFT',x,y); f:SetWidth(width or 480); f:SetJustifyH('LEFT')

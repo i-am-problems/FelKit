@@ -39,6 +39,10 @@ local en={
  assignPanelCardHelp='Your own assignments, as buttons over the orb.',
  assignShowPanel='Show my assignment buttons',assignButtonSize='Button size',assignSmall='Small',assignFull='Same as the kit',
  assignOffsetX='Move left / right',assignOffsetY='Move up / down',
+ fontTitle='Font',fontHelp='The font for Felkit\'s texts. The DoT bars can use their own (Enemies & DoTs). Fonts from other addons that use LibSharedMedia are listed too. Some texts change after a reload.',
+ fontFace='Font',fontOutline='Outline',fontUseGeneral='Same as General',fontAuto='Auto',
+ texTitle='Bar texture',texAuto='Style default',texHealth='Use the bar texture on health bars too',
+ barFont='Bar font',barFontOutline='Bar font outline',barFontSize='Bar text size',
  mark1='Star',mark2='Circle',mark3='Diamond',mark4='Triangle',mark5='Moon',mark6='Square',mark7='Cross',mark8='Skull',
 }
 for k,v in pairs(en) do S.Locales.en[k]=v end

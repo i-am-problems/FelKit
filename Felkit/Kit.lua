@@ -33,7 +33,7 @@ function K.best(family)
 end
 local function font(p,size)
  local t=p:CreateFontString(nil,'OVERLAY','GameFontNormal')
- t:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',size or 11,'OUTLINE'); return t
+ t:SetFont(S.font(),size or 11,S.fontOutline()); return t
 end
 local function backdrop(f)
  f:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Buttons\\WHITE8X8',edgeSize=1})
@@ -620,7 +620,7 @@ function K.visuals()
   if b.countText~=countText then b.count:SetText(countText); b.countText=countText end
   if stoneCount then
    local size=math.max(14,math.floor(S.db.kit.size*0.55))
-   if b.countSize~=size then b.countSize=size; b.count:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',size,'THICKOUTLINE') end
+   if b.countSize~=size then b.countSize=size; b.count:SetFont(S.font(),size,'THICKOUTLINE') end
    local empty=count==0
    if b.countEmpty~=empty then
     if empty then b.count:SetTextColor(1,0.3,0.25) else b.count:SetTextColor(1,1,1) end

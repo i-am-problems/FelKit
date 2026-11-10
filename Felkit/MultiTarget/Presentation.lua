@@ -30,8 +30,10 @@ local KIT_COLORS={[1]={.86,.60,.20},[2]={.70,.22,.62},[3]={.56,.32,.90},[4]={.36
 P.KIT_COLORS=KIT_COLORS
 local PARKED=-20000 -- absent chained rows wait far below, invisible
 local function frame(kind,parent) return CreateFrame(kind,nil,parent,TEMPLATE) end
+-- Felkit: the DoT window's font (its own face, size and outline, or the general ones).
 local function font(t,size)
-    t:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',size,'OUTLINE')
+    local path,outline,override=S.Media.barFont()
+    t:SetFont(path,override or size,outline)
 end
 local function text(parent,size)
     local t=parent:CreateFontString(nil,'OVERLAY')
@@ -64,6 +66,7 @@ function P.Settings()
         if on then names[#names+1]=spell.name; for _,id in ipairs(spell.ids) do c.ids[id]=true end end
     end
     c.idsKey=table.concat(names,',')
+    c.fontKey=S.Media.barFontKey(); c.healthTexture=p.healthTexture==true
     -- Kit bars: the enabled spells of each effect slot.
     c.slotIds={}
     for _,spell in ipairs(WH.API.Spells) do
@@ -117,8 +120,13 @@ end
 local function countdownFont()
     if P.font or not CreateFont then return P.font end
     local f=CreateFont(FONT)
-    if f then f:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',11,'OUTLINE'); f:SetShadowColor(0,0,0,1); f:SetShadowOffset(1,-1) end
-    P.font=f; return f
+    if f then f:SetShadowColor(0,0,0,1); f:SetShadowOffset(1,-1) end
+    P.font=f; P.SyncCountdownFont(); return f
+end
+function P.SyncCountdownFont()
+    if not P.font then return end
+    local path,outline,override=S.Media.barFont()
+    P.font:SetFont(path,override or 11,outline)
 end
 -- Warlock HUD icon: spell icon, reversed swipe, game countdown, stack count.
 local function makeIcon(button,row)
@@ -155,13 +163,14 @@ local function makeBar(button,row,c)
     local v={button=button}
     v.icon=button:CreateTexture(nil,'ARTWORK'); v.icon:SetTexCoord(.08,.92,.08,.92)
     v.icon:SetPoint('TOPLEFT',button,'TOPLEFT'); v.icon:SetPoint('BOTTOMLEFT',button,'BOTTOMLEFT')
-    v.bar=frame('StatusBar',button); v.bar:SetStatusBarTexture(WHITE); v.bar:SetMinMaxValues(0,1)
+    v.tex=S.Media.barTexture('flat')
+    v.bar=frame('StatusBar',button); v.bar:SetStatusBarTexture(v.tex); v.bar:SetMinMaxValues(0,1)
     v.bar:SetStatusBarColor(.58,.36,.92,.95)
     v.bg=v.bar:CreateTexture(nil,'BACKGROUND'); v.bg:SetAllPoints(v.bar); v.bg:SetColorTexture(.10,.09,.14,.85)
     local overlay=frame('Frame',button); overlay:SetAllPoints(button); overlay:SetFrameLevel(v.bar:GetFrameLevel()+2)
     v.name=text(overlay,11); v.name:SetPoint('LEFT',v.bar,'LEFT',4,0); v.name:SetPoint('RIGHT',v.bar,'RIGHT',-40,0)
     v.time=text(overlay,11); v.time:SetJustifyH('RIGHT'); v.time:SetPoint('RIGHT',v.bar,'RIGHT',-4,0)
-    barGeometry(v,c.barHeight); v.height=c.barHeight
+    barGeometry(v,c.barHeight); v.height=c.barHeight..(c.fontKey or '')
     button:SetIcon(v.icon); button:SetSpellName(v.name)
     button:SetDurationBar(v.bar,{direction=1,interpolation=0})
     button:SetDurationText(v.time,{})
@@ -192,7 +201,8 @@ local function makeKitBar(button,row,c,slot)
     v.icon:SetPoint('LEFT',button,'LEFT',0,0)
     v.mask=button:CreateMaskTexture(); v.mask:SetTexture(MEDIA..'fk_mask','CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
     v.mask:SetAllPoints(v.icon); v.icon:AddMaskTexture(v.mask)
-    v.bar=frame('StatusBar',button); v.bar:SetStatusBarTexture(MEDIA..'fk_bar'); v.bar:SetMinMaxValues(0,1)
+    v.tex=S.Media.barTexture('kit')
+    v.bar=frame('StatusBar',button); v.bar:SetStatusBarTexture(v.tex); v.bar:SetMinMaxValues(0,1)
     local color=c.kitColors and KIT_COLORS[slot] or KIT_COLORS[3]
     v.bar:SetStatusBarColor(color[1],color[2],color[3],.95)
     v.bg=v.bar:CreateTexture(nil,'BACKGROUND'); v.bg:SetAllPoints(v.bar); v.bg:SetColorTexture(.04,.025,.06,.92)
@@ -201,7 +211,7 @@ local function makeKitBar(button,row,c,slot)
     v.ring=overlay:CreateTexture(nil,'OVERLAY',nil,2); v.ring:SetTexture(MEDIA..'fk_ring'); v.ring:SetPoint('CENTER',v.icon,'CENTER')
     v.name=text(overlay,11); v.name:SetPoint('LEFT',v.bar,'LEFT',5,0); v.name:SetPoint('RIGHT',v.bar,'RIGHT',-40,0)
     v.time=text(overlay,11); v.time:SetJustifyH('RIGHT'); v.time:SetPoint('RIGHT',v.bar,'RIGHT',-5,0)
-    kitGeometry(v,c.barHeight); v.height=c.barHeight
+    kitGeometry(v,c.barHeight); v.height=c.barHeight..(c.fontKey or '')
     button:SetIcon(v.icon); button:SetSpellName(v.name)
     button:SetDurationBar(v.bar,{direction=1,interpolation=0})
     button:SetDurationText(v.time,{})
@@ -311,7 +321,7 @@ function P.PreviewKit(v,on,bh)
     v.kitRing:SetShown(on and c.kitRings~=false)
     for _,e in ipairs(v.kitEdges) do e:SetShown(on and c.kitEdges~=false) end
     local color=on and (c.kitColors~=false and KIT_COLORS[v.spell.slot] or KIT_COLORS[3]) or nil
-    v.bar:SetStatusBarTexture(on and MEDIA..'fk_bar' or WHITE)
+    v.bar:SetStatusBarTexture(S.Media.barTexture(on and 'kit' or 'flat'))
     if color then v.bar:SetStatusBarColor(color[1],color[2],color[3],.95) else v.bar:SetStatusBarColor(.58,.36,.92,.95) end
     if on then v.bg:SetColorTexture(.04,.025,.06,.92) else v.bg:SetColorTexture(.10,.09,.14,.85) end
 end
@@ -347,6 +357,7 @@ function P.Prepare(rows,settings)
         end
     end
     P.current=c; P.pending=false; P.error=nil
+    P.SyncCountdownFont()
     return true
 end
 -- Enables only the renderer of the chosen style (tracking work stays bounded).
@@ -673,7 +684,7 @@ function P.Row(row,width,_,panelWidth)
     local top=(header-hh)/2
     row.healthBar:ClearAllPoints(); row.healthBar:SetPoint('TOPLEFT',row.display,'TOPLEFT',left,-top)
     row.healthBar:SetSize(healthWidth,hh)
-    row.healthBar:SetStatusBarTexture(WHITE)
+    row.healthBar:SetStatusBarTexture(c.healthTexture and S.Media.barTexture('flat') or WHITE)
     if row.source~='ghost' then P.HealthColor(row) end
     row.healthTrack:SetColorTexture(.025,.025,.03,.85)
     -- Raid marker: on the portrait, or at the bar's left end without one.
@@ -707,7 +718,9 @@ function P.Row(row,width,_,panelWidth)
         configureGroup(row.barAuras,c,barWidth,bh,BAR_GAP)
         for _,v in ipairs(row.barVisuals or {}) do
             v.button:SetSize(barWidth,bh)
-            if v.height~=bh then barGeometry(v,bh); v.height=bh end
+            if v.height~=bh..(c.fontKey or '') then barGeometry(v,bh); v.height=bh..(c.fontKey or '') end
+            local tex=S.Media.barTexture('flat')
+            if v.tex~=tex and pcall(v.bar.SetStatusBarTexture,v.bar,tex) then v.tex=tex end
         end
     end
     if row.kitAuras then
@@ -724,7 +737,9 @@ function P.Row(row,width,_,panelWidth)
         end
         for _,v in ipairs(row.kitVisuals or {}) do
             v.button:SetSize(barWidth,bh)
-            if v.height~=bh then kitGeometry(v,bh); v.height=bh end
+            if v.height~=bh..(c.fontKey or '') then kitGeometry(v,bh); v.height=bh..(c.fontKey or '') end
+            local tex=S.Media.barTexture('kit')
+            if v.tex~=tex and pcall(v.bar.SetStatusBarTexture,v.bar,tex) then v.tex=tex end
             pcall(v.ring.SetShown,v.ring,c.kitRings)
             for _,e in ipairs(v.edges) do pcall(e.SetShown,e,c.kitEdges) end
         end

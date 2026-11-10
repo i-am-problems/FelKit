@@ -76,6 +76,73 @@ local function segment(page,card,key,title,options,acc,when)
     local g=T.segmented(card,card.inner,options,acc[1],acc[2],30); card:Add(g,nil,10)
     return register(page,key,g,when)
 end
+-- Dropdown: a title, then a button showing the choice; the list opens below it
+-- and scrolls with the wheel. options() returns {{value,label,font=path}}.
+local function dropdown(page,card,key,title,options,acc,when)
+    local row=CreateFrame('Frame',nil,card); row:SetSize(card.inner,30)
+    local t=T.text(row,12); t:SetPoint('LEFT',0,0); t:SetText(title); t:SetWidth(card.inner-250); t:SetJustifyH('LEFT')
+    local b=T.button(row,'',240,26,nil,'secondary'); b:SetPoint('RIGHT',0,0)
+    local list=O.dropList
+    if not list then
+        list=CreateFrame('Frame',nil,UIParent); list:SetFrameStrata('FULLSCREEN_DIALOG'); list:EnableMouse(true)
+        T.skin(list,T.c.side,T.c.accentDim); list.items={}; list:Hide(); list.offset=0
+        list:EnableMouseWheel(true)
+        list:SetScript('OnMouseWheel',function(self,d) self.offset=math.max(0,math.min(#self.options-14,self.offset-d)); self:Render() end)
+        function list:Render()
+            for i=1,14 do
+                local it=self.items[i]
+                if not it then
+                    it=CreateFrame('Button',nil,self); it:SetSize(232,22); it:SetPoint('TOPLEFT',4,-4-(i-1)*22)
+                    it.hl=it:CreateTexture(nil,'HIGHLIGHT'); it.hl:SetAllPoints(); it.hl:SetColorTexture(T.rgb(T.c.raised))
+                    it.text=it:CreateFontString(nil,'OVERLAY'); it.text:SetPoint('LEFT',8,0); it.text:SetWidth(216); it.text:SetJustifyH('LEFT')
+                    self.items[i]=it
+                end
+                local o=self.options[i+self.offset]
+                it:SetShown(o~=nil)
+                if o then
+                    if not (o.font and pcall(it.text.SetFont,it.text,o.font,12,'')) then it.text:SetFont(T.font(),12,'') end
+                    it.text:SetText((o.value==self.current and '|cffa466fc> |r' or '')..o.label)
+                    it:SetScript('OnClick',function() self:Hide(); self.pick(o.value) end)
+                end
+            end
+            self:SetSize(240,math.min(14,#self.options)*22+8)
+        end
+        list:SetScript('OnHide',function(self) self.owner=nil end)
+        O.dropList=list
+    end
+    b:SetScript('OnClick',function()
+        if list:IsShown() and list.owner==b then list:Hide(); return end
+        list.owner=b; list.options=options(); list.current=acc[1](); list.offset=0
+        list.pick=function(v) acc[2](v); b:Sync() end
+        list:ClearAllPoints(); list:SetPoint('TOPRIGHT',b,'BOTTOMRIGHT',0,-2); list:Render(); list:Show()
+    end)
+    function b:Sync()
+        local v=acc[1](); local label=tostring(v)
+        for _,o in ipairs(options()) do if o.value==v then label=o.label end end
+        self.label:SetText(label)
+    end
+    function row:Sync() b:Sync() end
+    function row:SetActive(on) b:SetAlpha(on and 1 or .4); b:EnableMouse(on) end
+    card:Add(row,30,8)
+    return register(page,key,row,when)
+end
+local function fontOptions(withGeneral)
+    local out={}
+    if withGeneral then out[1]={value='general',label=L.fontUseGeneral} end
+    for _,o in ipairs(S.Media.fonts()) do out[#out+1]={value=o.value,label=o.label,font=o.path} end
+    return out
+end
+local function outlineOptions(withGeneral)
+    local out={}
+    if withGeneral then out[1]={value='general',label=L.fontUseGeneral} end
+    for _,o in ipairs(S.Media.OUTLINES) do out[#out+1]={value=o.value,label=o.label} end
+    return out
+end
+local function textureOptions()
+    local out={{value='auto',label=L.texAuto}}
+    for _,o in ipairs(S.Media.textures()) do out[#out+1]={value=o.value,label=o.label} end
+    return out
+end
 local function buttonRow(page,card,list)
     local row=CreateFrame('Frame',nil,card); row:SetSize(card.inner,28)
     local x=0; local out={}
@@ -420,6 +487,11 @@ function B.multiTarget(page)
         {value='kit',label=L.mtStyleKit,tip=L.mtStyleKitHelp,glyph='bars'}},mtValue('dotStyle'))
     slider(page,dots,'mtBarHeight',L.mtBarHeight,8,30,1,{function() return p().barHeight end,
         function(v) p().barHeight=math.floor(v); apply() end},px,function() return p().dotStyle~='hud' end)
+    dropdown(page,dots,'mtBarTexture',L.texTitle,textureOptions,mtValue('barTexture'),function() return p().dotStyle~='hud' end)
+    toggle(page,dots,'mtHealthTexture',L.texHealth,nil,mtBool('healthTexture'))
+    dropdown(page,dots,'mtBarFont',L.barFont,function() return fontOptions(true) end,mtValue('barFont'))
+    dropdown(page,dots,'mtBarFontOutline',L.barFontOutline,function() return outlineOptions(true) end,mtValue('barFontOutline'))
+    slider(page,dots,'mtBarFontSize',L.barFontSize,0,24,1,mtValue('barFontSize'),function(v) return v==0 and L.fontAuto or (v..' px') end)
     toggle(page,dots,'mtKitColors',L.mtKitColors,L.mtKitColorsHelp,mtBool('kitColors'),function() return p().dotStyle=='kit' end)
     toggle(page,dots,'mtKitRings',L.mtKitRings,nil,mtBool('kitRings'),function() return p().dotStyle=='kit' end)
     toggle(page,dots,'mtKitEdges',L.mtKitEdges,nil,mtBool('kitEdges'),function() return p().dotStyle=='kit' end)
@@ -787,6 +859,10 @@ function B.general(page)
     slider(page,frames,'scale',L.scale,65,160,5,scaled('scale',100),pct)
     slider(page,frames,'opacity',L.opacity,25,100,5,scaled('opacity',100),pct)
     buttonRow(page,frames,{{label=L.reset,fn=function() S.UI.reset() end,icon=I.reset}})
+    local fonts=s:Card(L.fontTitle,L.fontHelp,nil,I.book)
+    dropdown(page,fonts,'fontFace',L.fontFace,function() return fontOptions(false) end,value('fontFace'))
+    dropdown(page,fonts,'fontOutline',L.fontOutline,function() return outlineOptions(false) end,value('fontOutline'))
+    buttonRow(page,fonts,{{label=L.languageReload,fn=function() if ReloadUI then ReloadUI() end end,icon=I.reset}})
     local engine=s:Card(L.dotEngineTitle,L.dotEngineHelp,nil,I.dots)
     segment(page,engine,'dotEngine',nil,{{value='window',label=L.dotEngineWindow,tip=L.dotEngineWindowHelp,glyph='bars'},
         {value='cards',label=L.dotEngineCards,tip=L.dotEngineCardsHelp,glyph='grid'}},
