@@ -36,9 +36,11 @@ local function build(b)
     b.orbHighlight=b:CreateTexture(nil,'HIGHLIGHT')
     b.orbHighlight:SetTexture(MEDIA..'fk_glow_fel'); b.orbHighlight:SetBlendMode('ADD'); b.orbHighlight:SetPoint('CENTER')
     b.orbHighlight:SetAlpha(0.55)
-    -- Texts ride above the ring.
-    for _,t in ipairs({b.time,b.count,b.statusMark,b.queueCode,b.queueCount}) do
-        if t then t:SetParent(ringHost) end
+end
+-- Texts ride above the ring in the orb look, on the button otherwise.
+local function texts(b,parent)
+    for _,key in ipairs({'time','count','statusMark','queueCode','queueCount'}) do
+        if b[key] then b[key]:SetParent(parent) end
     end
 end
 function O.skin(b,size)
@@ -46,6 +48,7 @@ function O.skin(b,size)
     local on=O.on()
     b.orbSkin=on
     b.orbRingHost:SetShown(on); b.orbBack:SetShown(on)
+    texts(b,on and b.orbRingHost or b)
     if on then
         b:SetBackdropColor(0,0,0,0); b:SetBackdropBorderColor(0,0,0,0)
         b.icon:ClearAllPoints(); b.icon:SetPoint('TOPLEFT',2,-2); b.icon:SetPoint('BOTTOMRIGHT',-2,2)
@@ -108,9 +111,9 @@ function O.skinCounter()
         c.orbHalo:SetBlendMode('ADD'); c.orbHalo:SetPoint('CENTER'); c.orbHalo:SetAlpha(0.35)
     end
     local on=O.on()
-    c.orbHost:SetShown(on); c.orbHalo:SetShown(on)
+    c.orbHost:SetShown(on); c.orbHalo:SetShown(on and S.db.kit.orbGlow~=false)
     if on then
-        local size=O.ORB_SIZE
+        local size=S.db.kit.orbSize or O.ORB_SIZE
         c:SetSize(size,size)
         shard:SetNormalTexture(MEDIA..'fk_orb')
         shard:SetHighlightTexture(MEDIA..'fk_glow_fel'); shard:GetHighlightTexture():SetBlendMode('ADD')
@@ -134,8 +137,9 @@ end
 function O.place(visible,cfg)
     local scale=cfg.scale or 1
     local size=cfg.size
-    local small=math.floor(size*0.62+0.5)
-    local r0=(O.ORB_SIZE/2)/scale
+    local small=math.floor(size*(cfg.smallScale or 62)/100+0.5)
+    local r0=((cfg.orbSize or O.ORB_SIZE)/2)/scale
+    local gap=cfg.orbGap or 7
     local byKey={}
     for _,b in ipairs(visible) do byKey[b.group.key]=b end
     local function pick(list)
@@ -151,20 +155,22 @@ function O.place(visible,cfg)
         if flyUp then b.flyout:SetPoint('BOTTOM',b,'TOP',0,8) else b.flyout:SetPoint('TOP',b,'BOTTOM',0,-8) end
     end
     -- Arc: up to 220 degrees over the top, spread evenly; fewer slots close up.
-    local ra=r0+size/2+7
+    local ra=r0+size/2+gap
     local n=#arc
-    local step=n>1 and math.min(44,220/(n-1)) or 0
+    local chord=math.deg(2*math.asin(math.min(1,(size+4)/(2*ra))))
+    local arcSpan=cfg.orbArc or 220
+    local step=n>1 and math.min(math.max(chord+4,arcSpan/5),arcSpan/(n-1)) or 0
     local start=90+step*(n-1)/2
     for i,b in ipairs(arc) do
         local a=math.rad(start-(i-1)*step)
         put(b,math.cos(a)*ra,math.sin(a)*ra,size,true)
     end
-    local y=-(r0+small/2+10)
-    local gap=small+5
-    for i,b in ipairs(smalls) do put(b,(i-(#smalls+1)/2)*gap,y,small,false) end
+    local y=-(r0+small/2+gap+3)
+    local smallGap=small+5
+    for i,b in ipairs(smalls) do put(b,(i-(#smalls+1)/2)*smallGap,y,small,false) end
     local bottom=#smalls>0 and (y-small/2) or -r0
     local divY=bottom-8
-    local rowGap=size+7
+    local rowGap=size+(cfg.rowGap or 7)
     local rowY=divY-8-size/2
     for i,b in ipairs(row) do put(b,(i-(#row+1)/2)*rowGap,rowY,size,false) end
     if not O.divider then
@@ -173,7 +179,7 @@ function O.place(visible,cfg)
     end
     O.divider:ClearAllPoints(); O.divider:SetPoint('CENTER',S.UI.counter,'CENTER',0,divY)
     O.divider:SetSize(math.max(3,#row)*rowGap+24,12)
-    O.divider:SetShown(#row>0)
+    O.divider:SetShown(#row>0 and cfg.divider~=false)
 end
 function O.hideExtras()
     if O.divider then O.divider:Hide() end

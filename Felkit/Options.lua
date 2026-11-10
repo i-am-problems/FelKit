@@ -420,6 +420,9 @@ function B.multiTarget(page)
         {value='kit',label=L.mtStyleKit,tip=L.mtStyleKitHelp,glyph='bars'}},mtValue('dotStyle'))
     slider(page,dots,'mtBarHeight',L.mtBarHeight,8,30,1,{function() return p().barHeight end,
         function(v) p().barHeight=math.floor(v); apply() end},px,function() return p().dotStyle~='hud' end)
+    toggle(page,dots,'mtKitColors',L.mtKitColors,L.mtKitColorsHelp,mtBool('kitColors'),function() return p().dotStyle=='kit' end)
+    toggle(page,dots,'mtKitRings',L.mtKitRings,nil,mtBool('kitRings'),function() return p().dotStyle=='kit' end)
+    toggle(page,dots,'mtKitEdges',L.mtKitEdges,nil,mtBool('kitEdges'),function() return p().dotStyle=='kit' end)
     page.mtPresentationState=T.text(dots,11,T.c.muted)
     page.mtPresentationState:SetWidth(dots.inner); page.mtPresentationState:SetWordWrap(true)
     dots:Add(page.mtPresentationState,30,6)
@@ -539,6 +542,14 @@ function B.kit(page)
         {label=L.kitReset,key='kitReset',icon=I.reset,fn=function() S.Kit.resetPositions() end,
             when=function() return S.db.kit.layout=='free' and not A.combat() end},
     })
+    local orb=layoutSec:Card(L.kitOrbTitle,L.kitOrbHelp,function() return S.db.kit.layout=='orb' end,I.size)
+    slider(page,orb,'kit.orbSize',L.kitOrbSize,40,96,2,kitValue('orbSize'),px)
+    slider(page,orb,'kit.smallScale',L.kitSmallScale,40,90,2,kitValue('smallScale'),pct)
+    slider(page,orb,'kit.orbArc',L.kitOrbArc,120,300,5,kitValue('orbArc'),function(v) return v..' deg' end)
+    slider(page,orb,'kit.orbGap',L.kitOrbGap,0,24,1,kitValue('orbGap'),px)
+    slider(page,orb,'kit.rowGap',L.kitRowGap,0,24,1,kitValue('rowGap'),px)
+    toggle(page,orb,'kit.divider',L.kitDivider,nil,kitBool('divider'))
+    toggle(page,orb,'kit.orbGlow',L.kitOrbGlow,nil,kitBool('orbGlow'))
     local size=layoutSec:Card(L.cardSize,L.kitScaleHelp,nil,I.size)
     slider(page,size,'kit.scale',L.kitScale,50,200,5,scaled('scale',100,true),pct)
     segment(page,size,'kit.size',L.kitBaseSize,{{value=28,label='28 px'},{value=36,label='36 px'},{value=44,label='44 px'},{value=52,label='52 px'}},kitValue('size'))
@@ -568,6 +579,12 @@ function B.kit(page)
     end
     list:Add(holder,nil,4)
 
+    local remind=newSection(page,'reminders')
+    local rc=remind:Card(L.kitRemindTitle,L.kitRemindHelp,nil,I.note)
+    for _,k in ipairs({'soul','health','armor','weapon','link'}) do
+        toggle(page,rc,'kit.reminders.'..k,L['kitRemind_'..k],nil,
+            {function() return S.db.kit.reminders[k]~=false end,function(v) S.db.kit.reminders[k]=v==true; apply() end})
+    end
     local summons=newSection(page,'summons')
     local opener=summons:Card(L.kitQueueButtonDesign,nil,nil,I.summon)
     segment(page,opener,'kit.queueButtonDesign',nil,{{value='full',label=L.kit_full},{value='compact',label=L.kit_compact},{value='icon',label=L.kit_icon,icon=I.summon}},kitValue('queueButtonDesign'))
@@ -795,8 +812,8 @@ O.NAV={
     {key='channels',group='combat',icon=I.channels,build=B.channels,
         master=function() return bool('channels') end,module=function() return S.db.channels end},
     {key='kit',group='tools',icon=I.kit,build=B.kit,sync=function(p) O.syncKit(p) end,
-        master=function() return kitBool('enabled') end,module=function() return S.db.kit.enabled end,tabs={'layout','buttons','summons'},
-        tabIcons={layout=I.move,buttons=I.kit,summons=I.summon}},
+        master=function() return kitBool('enabled') end,module=function() return S.db.kit.enabled end,tabs={'layout','buttons','reminders','summons'},
+        tabIcons={layout=I.move,buttons=I.kit,reminders=I.note,summons=I.summon}},
     {key='shards',group='tools',icon=I.shards,build=B.shards,sync=function(p) O.syncShards(p) end,
         master=function() return bool('shards') end,module=function() return S.db.shards end},
     {key='grimoire',group='tools',icon=I.grimoire,build=B.grimoire,sync=function() O.renderCatalogue() end,

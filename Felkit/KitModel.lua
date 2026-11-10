@@ -24,6 +24,14 @@ function M.settings(old)
  local qx=qp and S.Model.number(qp.x,-20000,20000)
  local qy=qp and S.Model.number(qp.y,-20000,20000)
  if qx and qy then d.queueButtonPosition={x=qx,y=qy} end
+ -- Felkit orb look and reminders.
+ local N=S.Model.number
+ d.orbSize=N(old.orbSize,40,96,58); d.smallScale=N(old.smallScale,40,90,62)
+ d.orbArc=N(old.orbArc,120,300,220); d.orbGap=N(old.orbGap,0,24,7); d.rowGap=N(old.rowGap,0,24,7)
+ d.divider=old.divider~=false; d.orbGlow=old.orbGlow~=false
+ local r=type(old.reminders)=='table' and old.reminders or {}
+ d.reminders={}
+ for _,k in ipairs({'soul','health','armor','weapon','link'}) do d.reminders[k]=r[k]~=false end
  if old.gridDirection=='left' or old.gridDirection=='up' or old.gridDirection=='down' then d.gridDirection=old.gridDirection end
  if old.layout=='horizontal' or old.layout=='vertical' or old.layout=='circle' or old.layout=='free' or old.layout=='grid' then d.layout=old.layout end
  for _,g in ipairs(S.KitData.groups) do

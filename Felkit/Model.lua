@@ -90,7 +90,7 @@ end
 M.multiTargetKeys={'corruption','bane','curse','drain','immolate','siphonlife','demonicbrand'}
 function M.multiTarget(old)
     old=type(old)=='table' and old or {}
-    local p={layout=3,multiDotHideOutOfCombat=old.layout~=2 and old.multiDotHideOutOfCombat~=false,
+    local p={kitColors=old.kitColors~=false,kitRings=old.kitRings~=false,kitEdges=old.kitEdges~=false,layout=3,multiDotHideOutOfCombat=old.layout~=2 and old.multiDotHideOutOfCombat~=false,
         multiDotAlpha=M.number(old.multiDotAlpha,0.3,1,0.75),multiDotScale=M.number(old.multiDotScale,0.7,1.6,1.15),
         multiDotWidth=M.number(old.multiDotWidth,260,700,486.9806397134812),multiDotHeight=M.number(old.multiDotHeight,150,800,494.3526533410917),
         multiDotX=M.number(old.multiDotX,0,1,0.6899731920128888),multiDotY=M.number(old.multiDotY,0,1,0.5541122910772355),

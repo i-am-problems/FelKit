@@ -45,7 +45,8 @@ function P.SetRowSource(fn) rowSource=fn end
 function P.Settings()
     local p=S.db.multiTarget
     local c={enemy='aio',dots=(p.dotStyle=='equal' or p.dotStyle=='kit') and 'equal' or 'hud',
-        barStyle=p.dotStyle=='kit' and 'kit' or 'flat',effects={},spells={},
+        barStyle=p.dotStyle=='kit' and 'kit' or 'flat',kitColors=p.kitColors~=false,kitRings=p.kitRings~=false,
+        kitEdges=p.kitEdges~=false,effects={},spells={},
         healthHeight=p.healthHeight,showName=p.showName,showPortrait=p.showPortrait,
         execute=p.execute,didBars=p.didBars,transparent=p.transparent,header=p.header,
         spacing=p.spacing,barHeight=p.barHeight,clickTarget=p.clickTarget,healthColor=p.healthColor,locked=p.locked~=false,
@@ -192,7 +193,7 @@ local function makeKitBar(button,row,c,slot)
     v.mask=button:CreateMaskTexture(); v.mask:SetTexture(MEDIA..'fk_mask','CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
     v.mask:SetAllPoints(v.icon); v.icon:AddMaskTexture(v.mask)
     v.bar=frame('StatusBar',button); v.bar:SetStatusBarTexture(MEDIA..'fk_bar'); v.bar:SetMinMaxValues(0,1)
-    local color=KIT_COLORS[slot] or KIT_COLORS[3]
+    local color=c.kitColors and KIT_COLORS[slot] or KIT_COLORS[3]
     v.bar:SetStatusBarColor(color[1],color[2],color[3],.95)
     v.bg=v.bar:CreateTexture(nil,'BACKGROUND'); v.bg:SetAllPoints(v.bar); v.bg:SetColorTexture(.04,.025,.06,.92)
     local overlay=frame('Frame',button); overlay:SetAllPoints(button); overlay:SetFrameLevel(v.bar:GetFrameLevel()+2)
@@ -306,9 +307,10 @@ function P.PreviewKit(v,on,bh)
         v.kitOn=on
     end
     v.kitRing:ClearAllPoints(); v.kitRing:SetPoint('CENTER',v.barIcon,'CENTER'); v.kitRing:SetSize(bh*1.24,bh*1.24)
-    v.kitRing:SetShown(on)
-    for _,e in ipairs(v.kitEdges) do e:SetShown(on) end
-    local color=on and KIT_COLORS[v.spell.slot] or nil
+    local c=P.current
+    v.kitRing:SetShown(on and c.kitRings~=false)
+    for _,e in ipairs(v.kitEdges) do e:SetShown(on and c.kitEdges~=false) end
+    local color=on and (c.kitColors~=false and KIT_COLORS[v.spell.slot] or KIT_COLORS[3]) or nil
     v.bar:SetStatusBarTexture(on and MEDIA..'fk_bar' or WHITE)
     if color then v.bar:SetStatusBarColor(color[1],color[2],color[3],.95) else v.bar:SetStatusBarColor(.58,.36,.92,.95) end
     if on then v.bg:SetColorTexture(.04,.025,.06,.92) else v.bg:SetColorTexture(.10,.09,.14,.85) end
@@ -723,6 +725,8 @@ function P.Row(row,width,_,panelWidth)
         for _,v in ipairs(row.kitVisuals or {}) do
             v.button:SetSize(barWidth,bh)
             if v.height~=bh then kitGeometry(v,bh); v.height=bh end
+            pcall(v.ring.SetShown,v.ring,c.kitRings)
+            for _,e in ipairs(v.edges) do pcall(e.SetShown,e,c.kitEdges) end
         end
     end
     for _,v in ipairs(row.previewVisuals or {}) do
