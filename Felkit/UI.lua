@@ -41,13 +41,13 @@ function U.halo(f,r,g,b)
     t:SetTexture('Interface\\Buttons\\UI-ActionButton-Border'); t:SetBlendMode('ADD')
     t:SetPoint('CENTER'); t:SetVertexColor(r,g,b); t:Hide()
     local pulse=t:CreateAnimationGroup(); pulse:SetLooping('BOUNCE')
-    local a=pulse:CreateAnimation('Alpha'); a:SetFromAlpha(0.35); a:SetToAlpha(1); a:SetDuration(0.6)
+    local a=pulse:CreateAnimation('Alpha'); a:SetFromAlpha(0.45); a:SetToAlpha(1); a:SetDuration(0.55)
     t.pulse=pulse; return t
 end
 function U.setHalo(t,on,size)
     if not t then return end
     if on then
-        if size then t:SetSize(size*1.85,size*1.85) end
+        if size then local k=t.ringGlow and 2.1 or 1.85; t:SetSize(size*k,size*k) end
         if not t:IsShown() then t:Show(); t.pulse:Play() end
     elseif t:IsShown() then t.pulse:Stop(); t:Hide() end
 end
@@ -524,7 +524,7 @@ function U.count(total,items,excess)
     elseif excess and excess>0 then U.counter.text:SetTextColor(1,0.84,0.1)
     else U.counter.text:SetTextColor(T.rgb(T.c.text)) end
     U.counter.text:SetFont(font(),excess and excess>0 and 30 or 26,'THICKOUTLINE')
-    U.setHalo(U.counter.halo,excess and excess>0,46)
+    U.setHalo(U.counter.halo,excess and excess>0,U.counter:GetWidth())
     S.Options.refresh()
 end
 local function fitHeight(content)

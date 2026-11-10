@@ -548,10 +548,14 @@ function B.kit(page)
     slider(page,orb,'kit.orbArc',L.kitOrbArc,120,300,5,kitValue('orbArc'),function(v) return v..' deg' end)
     slider(page,orb,'kit.orbGap',L.kitOrbGap,0,24,1,kitValue('orbGap'),px)
     slider(page,orb,'kit.rowGap',L.kitRowGap,0,24,1,kitValue('rowGap'),px)
-    segment(page,orb,'kit.orbArt',L.kitOrbArt,{{value='fel',label=L.kitArt_fel},{value='shadow',label=L.kitArt_shadow},
+    segment(page,orb,'kit.orbArt',L.kitOrbArt,{{value='arcane',label=L.kitArt_arcane},{value='fel',label=L.kitArt_fel},{value='shadow',label=L.kitArt_shadow},
         {value='item',label=L.kitArt_item},{value='class',label=L.kitArt_class},{value='none',label=L.kitArt_none}},kitValue('orbArt'))
     segment(page,orb,'kit.countPos',L.kitCountPos,{{value='middle',label=L.kitCount_middle},{value='corner',label=L.kitCount_corner},
         {value='hidden',label=L.kitCount_hidden}},kitValue('countPos'))
+    local ringOpts={{value='purple',label=L.color_purple},{value='gold',label=L.color_gold},{value='silver',label=L.color_silver},
+        {value='fel',label=L.color_fel},{value='cyan',label=L.color_cyan}}
+    segment(page,orb,'kit.ringColor',L.kitRingColor,ringOpts,kitValue('ringColor'))
+    segment(page,orb,'kit.orbRingColor',L.kitOrbRingColor,ringOpts,kitValue('orbRingColor'))
     toggle(page,orb,'kit.divider',L.kitDivider,nil,kitBool('divider'))
     toggle(page,orb,'kit.orbGlow',L.kitOrbGlow,nil,kitBool('orbGlow'))
     local size=layoutSec:Card(L.cardSize,L.kitScaleHelp,nil,I.size)
@@ -585,6 +589,8 @@ function B.kit(page)
 
     local remind=newSection(page,'reminders')
     local rc=remind:Card(L.kitRemindTitle,L.kitRemindHelp,nil,I.note)
+    segment(page,rc,'kit.alertColor',L.kitAlertColor,{{value='cyan',label=L.color_cyan},{value='orange',label=L.color_orange},
+        {value='green',label=L.color_green},{value='red',label=L.color_red},{value='pink',label=L.color_pink},{value='white',label=L.color_white}},kitValue('alertColor'))
     for _,k in ipairs({'soul','health','armor','weapon','link'}) do
         toggle(page,rc,'kit.reminders.'..k,L['kitRemind_'..k],nil,
             {function() return S.db.kit.reminders[k]~=false end,function(v) S.db.kit.reminders[k]=v==true; apply() end})

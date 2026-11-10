@@ -11,6 +11,10 @@ O.SMALL={'sacrifice','link','domination'}
 O.ROW={'armor','weapon','drain','summon','utility'}
 O.ORB_SIZE=58
 local GOLD={0.84,0.65,0.28}
+-- Ring and alert colours (the ring art is neutral grey, tinted here).
+O.COLORS={purple={0.66,0.42,1.0},gold={1.0,0.80,0.42},silver={0.86,0.88,0.95},fel={0.45,1.0,0.35},
+    cyan={0.25,0.90,1.0},orange={1.0,0.55,0.15},green={0.35,1.0,0.45},red={1.0,0.25,0.22},pink={1.0,0.45,0.85},white={1,1,1}}
+function O.color(key,fallback) return O.COLORS[key] or O.COLORS[fallback] end
 local where={}
 for _,k in ipairs(O.ARC) do where[k]='arc' end
 for _,k in ipairs(O.SMALL) do where[k]='small' end
@@ -32,7 +36,7 @@ local function build(b)
     local ringHost=CreateFrame('Frame',nil,b); ringHost:SetAllPoints(b); ringHost:EnableMouse(false)
     ringHost:SetFrameLevel(b:GetFrameLevel()+2); b.orbRingHost=ringHost
     b.orbRing=ringHost:CreateTexture(nil,'OVERLAY')
-    b.orbRing:SetTexture(MEDIA..'fk_ring'); b.orbRing:SetPoint('CENTER')
+    b.orbRing:SetTexture(MEDIA..'fk_ring_n'); b.orbRing:SetPoint('CENTER')
     b.orbHighlight=b:CreateTexture(nil,'HIGHLIGHT')
     b.orbHighlight:SetTexture(MEDIA..'fk_glow_fel'); b.orbHighlight:SetBlendMode('ADD'); b.orbHighlight:SetPoint('CENTER')
     b.orbHighlight:SetAlpha(0.55)
@@ -60,7 +64,10 @@ function O.skin(b,size)
         if b.cooldown.SetSwipeTexture then pcall(b.cooldown.SetSwipeTexture,b.cooldown,MEDIA..'fk_mask') end
         if b.cooldown.SetUseCircularEdge then pcall(b.cooldown.SetUseCircularEdge,b.cooldown,true) end
         if b.halo then
-            b.halo:SetTexture(MEDIA..'fk_glow'); b.halo:SetDrawLayer('BACKGROUND',-3)
+            -- The alert glow sits over the ring, so it reads at a glance.
+            local a=O.color(S.db.kit.alertColor,'cyan')
+            b.halo:SetParent(b.orbRingHost); b.halo:SetTexture(MEDIA..'fk_glow_ring')
+            b.halo.ringGlow=true; b.halo:SetDrawLayer('OVERLAY',3); b.halo:SetBlendMode('ADD'); b.halo:SetVertexColor(a[1],a[2],a[3])
         end
         b.time:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',math.max(9,math.floor(size*0.3)),'OUTLINE')
         b.time:ClearAllPoints(); b.time:SetPoint('CENTER',0,0)
@@ -75,7 +82,8 @@ function O.skin(b,size)
         if b.cooldown.SetSwipeTexture then pcall(b.cooldown.SetSwipeTexture,b.cooldown,'Interface\\Buttons\\WHITE8X8') end
         if b.cooldown.SetUseCircularEdge then pcall(b.cooldown.SetUseCircularEdge,b.cooldown,false) end
         if b.halo then
-            b.halo:SetTexture('Interface\\Buttons\\UI-ActionButton-Border'); b.halo:SetDrawLayer('OVERLAY')
+            b.halo:SetParent(b); b.halo:SetTexture('Interface\\Buttons\\UI-ActionButton-Border')
+            b.halo.ringGlow=nil; b.halo:SetDrawLayer('OVERLAY'); b.halo:SetBlendMode('ADD'); b.halo:SetVertexColor(1,0.62,0.12)
         end
         b.time:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',10,'OUTLINE')
         b.time:ClearAllPoints(); b.time:SetPoint('BOTTOM',0,2)
@@ -87,13 +95,16 @@ end
 local STATES={
     normal={square={0.43,0.24,0.60},ring=GOLD},
     soul={square={0.3,0.9,0.45},ring={0.45,1,0.55}},
-    missing={square={1,0.7,0.2},ring={1,0.55,0.15}},
+    missing={square={1,0.7,0.2},ring={0.25,0.90,1.0}},
     active={square={0.3,0.9,0.45},ring={0.45,1,0.55}},
 }
 function O.border(b,state)
     local s=STATES[state] or STATES.normal
     if b.orbSkin then
-        b.orbRing:SetVertexColor(s.ring[1],s.ring[2],s.ring[3])
+        local ring=s.ring
+        if state=='normal' or not STATES[state] then ring=O.color(S.db.kit.ringColor,'purple')
+        elseif state=='missing' then ring=O.color(S.db.kit.alertColor,'cyan') end
+        b.orbRing:SetVertexColor(ring[1],ring[2],ring[3])
         b:SetBackdropBorderColor(0,0,0,0)
     else
         b:SetBackdropBorderColor(s.square[1],s.square[2],s.square[3],1)
@@ -107,7 +118,7 @@ function O.skinCounter()
     if not c.orbRing then
         local host=CreateFrame('Frame',nil,shard); host:SetAllPoints(shard); host:EnableMouse(false)
         host:SetFrameLevel(shard:GetFrameLevel()+1); c.orbHost=host
-        c.orbRing=host:CreateTexture(nil,'OVERLAY'); c.orbRing:SetTexture(MEDIA..'fk_orb_ring'); c.orbRing:SetPoint('CENTER')
+        c.orbRing=host:CreateTexture(nil,'OVERLAY'); c.orbRing:SetTexture(MEDIA..'fk_orb_ring_n'); c.orbRing:SetPoint('CENTER')
         c.orbHalo=shard:CreateTexture(nil,'BACKGROUND',nil,-4); c.orbHalo:SetTexture(MEDIA..'fk_glow_fel')
         c.orbHalo:SetBlendMode('ADD'); c.orbHalo:SetPoint('CENTER'); c.orbHalo:SetAlpha(0.35)
         -- Centre art over the glass: drawn on the button, under the ring and the count.
@@ -125,8 +136,13 @@ function O.skinCounter()
         shard:SetHighlightTexture(MEDIA..'fk_glow_fel'); shard:GetHighlightTexture():SetBlendMode('ADD')
         shard:GetHighlightTexture():SetAlpha(0.4)
         c.orbRing:SetSize(size*1.16,size*1.16); c.orbHalo:SetSize(size*1.9,size*1.9)
+        local rc=O.color(S.db.kit.orbRingColor,'gold'); c.orbRing:SetVertexColor(rc[1],rc[2],rc[3])
         c.text:SetParent(c.orbHost)
-        if c.halo then c.halo:SetTexture(MEDIA..'fk_glow'); c.halo:SetDrawLayer('BACKGROUND',-3) end
+        if c.halo then
+            local a=O.color(S.db.kit.alertColor,'cyan')
+            c.halo:SetParent(c.orbHost); c.halo:SetTexture(MEDIA..'fk_glow_ring'); c.halo.ringGlow=true; c.halo:SetDrawLayer('OVERLAY',3)
+            c.halo:SetBlendMode('ADD'); c.halo:SetVertexColor(a[1],a[2],a[3])
+        end
         O.centreArt(c,size)
         O.countPosition(c,size)
     else
@@ -138,18 +154,21 @@ function O.skinCounter()
         shard:SetNormalTexture(icon or 'Interface\\Icons\\INV_Misc_Gem_Amethyst_02')
         shard:SetHighlightTexture('Interface\\Buttons\\ButtonHilight-Square')
         c.text:SetParent(shard)
-        if c.halo then c.halo:SetTexture('Interface\\Buttons\\UI-ActionButton-Border'); c.halo:SetDrawLayer('OVERLAY') end
+        if c.halo then
+            c.halo:SetParent(shard); c.halo:SetTexture('Interface\\Buttons\\UI-ActionButton-Border')
+            c.halo.ringGlow=nil; c.halo:SetDrawLayer('OVERLAY'); c.halo:SetVertexColor(1,0.78,0.15)
+        end
     end
 end
 
 -- Centre art: Felkit's own crystal shards, or the game's Soul Shard or class icon.
 function O.centreArt(c,size)
-    local art=S.db.kit.orbArt or 'fel'
+    local art=S.db.kit.orbArt or 'arcane'
     local t=c.orbArt
     if c.orbArtMasked then t:RemoveMaskTexture(c.orbArtMask); c.orbArtMasked=nil end
     t:SetTexCoord(0,1,0,1); t:SetVertexColor(1,1,1)
-    if art=='fel' or art=='shadow' then
-        t:SetTexture(MEDIA..'fk_shard_'..art); t:SetSize(size*1.05,size*1.05)
+    if art=='arcane' or art=='fel' or art=='shadow' then
+        t:SetTexture(MEDIA..'fk_shard_'..art); t:SetSize(size*1.2,size*1.2)
     elseif art=='item' then
         local icon=C_Item and A.call(C_Item.GetItemIconByID,6265)
         t:SetTexture(icon or 'Interface\\Icons\\INV_Misc_Gem_Amethyst_02'); t:SetSize(size*0.72,size*0.72)

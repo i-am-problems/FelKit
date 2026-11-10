@@ -29,8 +29,13 @@ function M.settings(old)
  d.orbSize=N(old.orbSize,40,96,58); d.smallScale=N(old.smallScale,40,90,62)
  d.orbArc=N(old.orbArc,120,300,220); d.orbGap=N(old.orbGap,0,24,7); d.rowGap=N(old.rowGap,0,24,7)
  d.divider=old.divider~=false; d.orbGlow=old.orbGlow~=false
- local arts={fel=true,shadow=true,item=true,class=true,none=true}
- d.orbArt=arts[old.orbArt] and old.orbArt or 'fel'
+ local arts={arcane=true,fel=true,shadow=true,item=true,class=true,none=true}
+ d.orbArt=arts[old.orbArt] and old.orbArt or 'arcane'
+ local rings={purple=true,gold=true,silver=true,fel=true,cyan=true}
+ d.ringColor=rings[old.ringColor] and old.ringColor or 'purple'
+ d.orbRingColor=rings[old.orbRingColor] and old.orbRingColor or 'gold'
+ local alerts={cyan=true,orange=true,green=true,red=true,pink=true,white=true}
+ d.alertColor=alerts[old.alertColor] and old.alertColor or 'cyan'
  d.countPos=(old.countPos=='corner' or old.countPos=='hidden') and old.countPos or 'middle'
  local r=type(old.reminders)=='table' and old.reminders or {}
  d.reminders={}
