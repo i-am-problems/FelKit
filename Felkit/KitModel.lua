@@ -27,7 +27,7 @@ function M.settings(old)
  -- Felkit orb look and reminders.
  local N=S.Model.number
  d.orbSize=N(old.orbSize,40,96,58); d.smallScale=N(old.smallScale,40,90,62)
- d.orbArc=N(old.orbArc,120,300,220); d.orbGap=N(old.orbGap,0,24,7); d.rowGap=N(old.rowGap,0,24,7)
+ d.rowDrop=N(old.rowDrop,0,120,0); d.orbArc=N(old.orbArc,120,300,220); d.orbGap=N(old.orbGap,0,24,7); d.rowGap=N(old.rowGap,0,24,7)
  d.divider=old.divider~=false; d.orbGlow=old.orbGlow~=false
  local arts={arcane=true,fel=true,shadow=true,item=true,class=true,none=true}
  d.orbArt=arts[old.orbArt] and old.orbArt or 'arcane'

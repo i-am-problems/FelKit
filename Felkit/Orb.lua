@@ -225,15 +225,21 @@ function O.place(visible,cfg)
     local arcSpan=cfg.orbArc or 220
     local step=n>1 and math.min(math.max(chord+4,arcSpan/5),arcSpan/(n-1)) or 0
     local start=90+step*(n-1)/2
+    local arcLow=0
     for i,b in ipairs(arc) do
         local a=math.rad(start-(i-1)*step)
-        put(b,math.cos(a)*ra,math.sin(a)*ra,size,true)
+        local ay=math.sin(a)*ra
+        put(b,math.cos(a)*ra,ay,size,true)
+        arcLow=math.min(arcLow,ay-size/2)
     end
     local y=-(r0+small/2+gap+3)
     local smallGap=small+5
     for i,b in ipairs(smalls) do put(b,(i-(#smalls+1)/2)*smallGap,y,small,false) end
     local bottom=#smalls>0 and (y-small/2) or -r0
-    local divY=bottom-8
+    -- Wide arcs reach below the orb: the bottom row always starts under them,
+    -- then moves down by the chosen distance.
+    bottom=math.min(bottom,arcLow)
+    local divY=bottom-8-(cfg.rowDrop or 0)
     local rowGap=size+(cfg.rowGap or 7)
     local rowY=divY-8-size/2
     for i,b in ipairs(row) do put(b,(i-(#row+1)/2)*rowGap,rowY,size,false) end
