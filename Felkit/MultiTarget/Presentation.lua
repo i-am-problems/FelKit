@@ -152,39 +152,9 @@ function P.SyncCountdownFont()
     local path,outline,override=S.Media.barFont()
     P.font:SetFont(path,override or 11,outline)
 end
--- Icon shapes: a mask clips the spell icon, a neutral bevelled frame is tinted
--- in the border colour. The masks fill MASK_EXTENT of their texture, the
--- frame's inner edge sits just inside that.
-local MASK_EXTENT=.88
-local BORDER_COLORS={gold={1,.80,.42},purple={.66,.42,1},silver={.86,.88,.95},black={.10,.10,.12},
-    red={1,.25,.22},fel={.45,1,.35}}
 local TIMEBAR_COLOR={.66,.42,1}
-local function shapeParts(owner,icon,layer)
-    local s={icon=icon}
-    s.mask=owner:CreateMaskTexture(); icon:AddMaskTexture(s.mask)
-    s.frame=layer:CreateTexture(nil,'OVERLAY',nil,1)
-    return s
-end
-local function applyShape(s,c,size,cooldown)
-    local shape=c.iconShape or 'square'
-    local border=BORDER_COLORS[c.iconBorder]
-    local key=shape..':'..tostring(c.iconBorder)..':'..size
-    if s.key==key then return end
-    s.key=key
-    local plain=shape=='square' and not border
-    local o=border and 0 or math.floor(size*(1/MASK_EXTENT-1)/2+.5)
-    s.mask:SetTexture(MEDIA..'fk_mask_'..shape,'CLAMPTOBLACKADDITIVE','CLAMPTOBLACKADDITIVE')
-    s.mask:ClearAllPoints(); s.mask:SetPoint('TOPLEFT',s.icon,'TOPLEFT',-o,o); s.mask:SetPoint('BOTTOMRIGHT',s.icon,'BOTTOMRIGHT',o,-o)
-    if plain then s.icon:SetTexCoord(ICON_CROP,1-ICON_CROP,ICON_CROP,1-ICON_CROP) else s.icon:SetTexCoord(.08,.92,.08,.92) end
-    s.frame:SetTexture(MEDIA..'fk_frame_'..shape); s.frame:ClearAllPoints(); s.frame:SetAllPoints(s.icon)
-    if border then s.frame:SetVertexColor(border[1],border[2],border[3],1); s.frame:SetAlpha(1) else s.frame:SetAlpha(0) end
-    if cooldown then
-        cooldown:ClearAllPoints()
-        if plain then cooldown:SetAllPoints(s.icon)
-        else cooldown:SetPoint('TOPLEFT',s.mask,'TOPLEFT'); cooldown:SetPoint('BOTTOMRIGHT',s.mask,'BOTTOMRIGHT') end
-        if cooldown.SetSwipeTexture then pcall(cooldown.SetSwipeTexture,cooldown,plain and WHITE or MEDIA..'fk_mask_'..shape) end
-    end
-end
+local shapeParts=function(...) return S.Media.shapeParts(...) end
+local function applyShape(s,c,size,cooldown) S.Media.applyShape(s,c.iconShape,c.iconBorder,size,cooldown) end
 local function timeBar(parent)
     local b=frame('StatusBar',parent); b:SetStatusBarTexture(WHITE); b:SetMinMaxValues(0,1)
     b:SetStatusBarColor(TIMEBAR_COLOR[1],TIMEBAR_COLOR[2],TIMEBAR_COLOR[3],1)

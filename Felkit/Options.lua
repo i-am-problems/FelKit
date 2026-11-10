@@ -77,11 +77,26 @@ local function segment(page,card,key,title,options,acc,when)
     return register(page,key,g,when)
 end
 -- Dropdown: a title, then a button showing the choice; the list opens below it
--- and scrolls with the wheel. options() returns {{value,label,font=path}}.
+-- and scrolls with the wheel. options() returns {{value,label,font=path,
+-- outline=flags,texture=path}}: each entry previews itself, in its font and
+-- outline or over its bar texture, and so does the button.
+local PREVIEW_BAR={.56,.32,.90}
+local function previewText(fs,o,size)
+    local outline=o.outline or (o.texture and 'OUTLINE') or ''
+    if not (o.font and pcall(fs.SetFont,fs,o.font,size,outline)) then fs:SetFont(T.font(),size,outline) end
+end
+local function previewBar(t,o)
+    if o and o.texture and pcall(t.SetTexture,t,o.texture) then
+        t:SetVertexColor(PREVIEW_BAR[1],PREVIEW_BAR[2],PREVIEW_BAR[3],1); t:Show()
+    else t:Hide() end
+end
 local function dropdown(page,card,key,title,options,acc,when)
     local row=CreateFrame('Frame',nil,card); row:SetSize(card.inner,30)
     local t=T.text(row,12); t:SetPoint('LEFT',0,0); t:SetText(title); t:SetWidth(card.inner-250); t:SetJustifyH('LEFT')
     local b=T.button(row,'',240,26,nil,'secondary'); b:SetPoint('RIGHT',0,0)
+    b.preview=b:CreateTexture(nil,'ARTWORK'); b.preview:SetPoint('TOPLEFT',3,-3); b.preview:SetPoint('BOTTOMRIGHT',-18,3); b.preview:Hide()
+    b.arrow=T.text(b,10,T.c.muted); b.arrow:SetPoint('RIGHT',-6,0); b.arrow:SetText('v')
+    b.label:ClearAllPoints(); b.label:SetPoint('LEFT',10,0); b.label:SetPoint('RIGHT',-20,0); b.label:SetJustifyH('LEFT')
     local list=O.dropList
     if not list then
         list=CreateFrame('Frame',nil,UIParent); list:SetFrameStrata('FULLSCREEN_DIALOG'); list:EnableMouse(true)
@@ -89,23 +104,32 @@ local function dropdown(page,card,key,title,options,acc,when)
         list:EnableMouseWheel(true)
         list:SetScript('OnMouseWheel',function(self,d) self.offset=math.max(0,math.min(#self.options-14,self.offset-d)); self:Render() end)
         function list:Render()
+            local h=self.tall and 26 or 22
             for i=1,14 do
                 local it=self.items[i]
                 if not it then
-                    it=CreateFrame('Button',nil,self); it:SetSize(232,22); it:SetPoint('TOPLEFT',4,-4-(i-1)*22)
-                    it.hl=it:CreateTexture(nil,'HIGHLIGHT'); it.hl:SetAllPoints(); it.hl:SetColorTexture(T.rgb(T.c.raised))
-                    it.text=it:CreateFontString(nil,'OVERLAY'); it.text:SetPoint('LEFT',8,0); it.text:SetWidth(216); it.text:SetJustifyH('LEFT')
+                    it=CreateFrame('Button',nil,self)
+                    it.bar=it:CreateTexture(nil,'ARTWORK'); it.bar:SetPoint('TOPLEFT',2,-2); it.bar:SetPoint('BOTTOMRIGHT',-2,2)
+                    it.hl=it:CreateTexture(nil,'HIGHLIGHT'); it.hl:SetAllPoints(); it.hl:SetColorTexture(1,1,1,.10)
+                    it.mark=it:CreateTexture(nil,'OVERLAY'); it.mark:SetPoint('TOPLEFT'); it.mark:SetPoint('BOTTOMLEFT'); it.mark:SetWidth(3)
+                    it.mark:SetColorTexture(T.rgb(T.c.accent))
+                    it.text=it:CreateFontString(nil,'OVERLAY'); it.text:SetPoint('LEFT',10,0); it.text:SetWidth(212); it.text:SetJustifyH('LEFT')
                     self.items[i]=it
                 end
+                it:SetSize(232,h); it:ClearAllPoints(); it:SetPoint('TOPLEFT',4,-4-(i-1)*(h+1))
                 local o=self.options[i+self.offset]
                 it:SetShown(o~=nil)
                 if o then
-                    if not (o.font and pcall(it.text.SetFont,it.text,o.font,12,'')) then it.text:SetFont(T.font(),12,'') end
-                    it.text:SetText((o.value==self.current and '|cffa466fc> |r' or '')..o.label)
+                    previewBar(it.bar,o)
+                    previewText(it.text,o,o.font and 13 or 12)
+                    local on=o.value==self.current
+                    it.mark:SetShown(on)
+                    it.text:SetTextColor(T.rgb(on and T.c.text or (o.texture and T.c.text or T.c.muted)))
+                    it.text:SetText(o.label)
                     it:SetScript('OnClick',function() self:Hide(); self.pick(o.value) end)
                 end
             end
-            self:SetSize(240,math.min(14,#self.options)*22+8)
+            self:SetSize(240,math.min(14,#self.options)*(h+1)+7)
         end
         list:SetScript('OnHide',function(self) self.owner=nil end)
         O.dropList=list
@@ -113,13 +137,18 @@ local function dropdown(page,card,key,title,options,acc,when)
     b:SetScript('OnClick',function()
         if list:IsShown() and list.owner==b then list:Hide(); return end
         list.owner=b; list.options=options(); list.current=acc[1](); list.offset=0
+        list.tall=false
+        for _,o in ipairs(list.options) do if o.texture then list.tall=true end end
+        for i,o in ipairs(list.options) do if o.value==list.current then list.offset=math.max(0,math.min(#list.options-14,i-7)) end end
         list.pick=function(v) acc[2](v); b:Sync() end
         list:ClearAllPoints(); list:SetPoint('TOPRIGHT',b,'BOTTOMRIGHT',0,-2); list:Render(); list:Show()
     end)
     function b:Sync()
-        local v=acc[1](); local label=tostring(v)
-        for _,o in ipairs(options()) do if o.value==v then label=o.label end end
-        self.label:SetText(label)
+        local v=acc[1](); local chosen
+        for _,o in ipairs(options()) do if o.value==v then chosen=o end end
+        previewBar(self.preview,chosen)
+        previewText(self.label,chosen or {},12)
+        self.label:SetText(chosen and chosen.label or tostring(v))
     end
     function row:Sync() b:Sync() end
     function row:SetActive(on) b:SetAlpha(on and 1 or .4); b:EnableMouse(on) end
@@ -128,20 +157,66 @@ local function dropdown(page,card,key,title,options,acc,when)
 end
 local function fontOptions(withGeneral)
     local out={}
-    if withGeneral then out[1]={value='general',label=L.fontUseGeneral} end
+    if withGeneral then out[1]={value='general',label=L.fontUseGeneral,font=S.Media.fontPath()} end
     for _,o in ipairs(S.Media.fonts()) do out[#out+1]={value=o.value,label=o.label,font=o.path} end
     return out
 end
+-- Outlines preview in the font they will be used with.
 local function outlineOptions(withGeneral)
     local out={}
-    if withGeneral then out[1]={value='general',label=L.fontUseGeneral} end
-    for _,o in ipairs(S.Media.OUTLINES) do out[#out+1]={value=o.value,label=o.label} end
+    local face=withGeneral and (S.Media.barFont()) or S.Media.fontPath()
+    if withGeneral then out[1]={value='general',label=L.fontUseGeneral,font=face,outline=S.Media.outline()} end
+    for _,o in ipairs(S.Media.OUTLINES) do out[#out+1]={value=o.value,label=o.label,font=face,outline=o.value} end
     return out
 end
 local function textureOptions()
-    local out={{value='auto',label=L.texAuto}}
-    for _,o in ipairs(S.Media.textures()) do out[#out+1]={value=o.value,label=o.label} end
+    local out={{value='auto',label=L.texAuto,texture=S.Media.TEXTURES[1].path}}
+    for _,o in ipairs(S.Media.textures()) do out[#out+1]={value=o.value,label=o.label,texture=o.path} end
     return out
+end
+-- Radio tiles for the DoT icon shape: each tile shows a sample icon in that
+-- shape, with the border currently chosen.
+local SAMPLE_ICON='Interface\\Icons\\Spell_Shadow_AbominationExplosion'
+local DISC='Interface\\AddOns\\'..addon..'\\Media\\fk_mask_round'
+local function shapePicker(page,card,key,title,acc,when)
+    local t=T.text(card,12); t:SetText(title); t:SetWidth(card.inner); card:Add(t,t:GetStringHeight(),6)
+    local shapes,gap,h=S.Media.SHAPES,8,84
+    local w=math.floor((card.inner-(#shapes-1)*gap)/#shapes)
+    local g=CreateFrame('Frame',nil,card); g:SetSize(card.inner,h); g.tiles={}
+    local function disc(b,size,sub)
+        local d=b:CreateTexture(nil,'ARTWORK',nil,sub); d:SetTexture(DISC); d:SetSize(size,size); return d
+    end
+    for i,shape in ipairs(shapes) do
+        local b=CreateFrame('Button',nil,g); b:SetSize(w,h); b:SetPoint('TOPLEFT',(i-1)*(w+gap),0)
+        T.skin(b,T.c.bg,T.c.line)
+        b.icon=b:CreateTexture(nil,'ARTWORK'); b.icon:SetTexture(SAMPLE_ICON); b.icon:SetSize(38,38); b.icon:SetPoint('TOP',0,-10)
+        b.shape=S.Media.shapeParts(b,b.icon,b)
+        b.label=T.text(b,11); b.label:SetText(L['iconShape_'..shape]); b.label:SetPoint('BOTTOM',8,11)
+        b.radio=disc(b,14,1); b.radio:SetPoint('RIGHT',b.label,'LEFT',-5,0)
+        b.hole=disc(b,10,2); b.hole:SetPoint('CENTER',b.radio); b.hole:SetVertexColor(T.rgb(T.c.bg))
+        b.dot=disc(b,6,3); b.dot:SetPoint('CENTER',b.radio); b.dot:SetVertexColor(T.rgb(T.c.accent))
+        b.value=shape
+        b:SetScript('OnClick',function() if g.enabled~=false then acc[2](shape); g:Sync() end end)
+        b:SetScript('OnEnter',function() b.hot=true; g:Sync() end)
+        b:SetScript('OnLeave',function() b.hot=false; g:Sync() end)
+        g.tiles[i]=b
+    end
+    function g:Sync()
+        local v=acc[1](); local border=S.db.multiTarget.iconBorder
+        for _,b in ipairs(self.tiles) do
+            local on=b.value==v
+            T.paint(b,on and T.c.raised or (b.hot and T.c.card or T.c.bg),on and T.c.accent or (b.hot and T.c.accentDim or T.c.line))
+            S.Media.applyShape(b.shape,b.value,border,38)
+            b.radio:SetVertexColor(T.rgb(on and T.c.accent or T.c.faint))
+            b.dot:SetShown(on)
+            b.label:SetTextColor(T.rgb(on and T.c.text or T.c.muted))
+        end
+        self:SetAlpha(self.enabled==false and 0.45 or 1)
+    end
+    function g:SetActive(on) self.enabled=on~=false; self:Sync() end
+    g:Sync()
+    card:Add(g,h,10)
+    return register(page,key,g,when)
 end
 local function buttonRow(page,card,list)
     local row=CreateFrame('Frame',nil,card); row:SetSize(card.inner,28)
@@ -488,14 +563,10 @@ function B.multiTarget(page)
     local isHud=function() return p().dotStyle=='hud' end
     segment(page,dots,'mtIconPlace',L.iconPlace,{{value='right',label=L.iconPlaceRight},{value='below',label=L.iconPlaceBelow}},
         mtValue('iconPlace'),isHud)
-    dropdown(page,dots,'mtIconShape',L.iconShape,function()
-        local out={}
-        for _,k in ipairs({'square','rounded','round','diamond','hexagon'}) do out[#out+1]={value=k,label=L['iconShape_'..k]} end
-        return out
-    end,mtValue('iconShape'),isHud)
+    shapePicker(page,dots,'mtIconShape',L.iconShape,mtValue('iconShape'),isHud)
     dropdown(page,dots,'mtIconBorder',L.iconBorder,function()
         local out={}
-        for _,k in ipairs({'none','gold','purple','silver','black','red','fel'}) do out[#out+1]={value=k,label=L['iconBorder_'..k]} end
+        for _,k in ipairs(S.Media.BORDERS) do out[#out+1]={value=k,label=L['iconBorder_'..k]} end
         return out
     end,mtValue('iconBorder'),isHud)
     slider(page,dots,'mtIconSize',L.iconSize,0,48,1,{function() return p().iconSize end,
