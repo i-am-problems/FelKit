@@ -1,11 +1,11 @@
 local addon,S=...
--- Proc timers (original Felkit code): Decimation and Nightfall (Shadow Trance)
+-- Proc timers (original FelKit code): Decimation and Nightfall (Shadow Trance)
 -- as a bar or an icon with a countdown, placed anywhere.
 --
 -- Forever hides the player's buffs from addon code in combat, so the timer
 -- never reads them: each look is a slot in the game's own AuraContainer on
 -- the player, filtered on the proc's buff IDs. The game shows the slot while
--- the buff is on and drains its bar and countdown. Felkit only builds and
+-- the buff is on and drains its bar and countdown. FelKit only builds and
 -- places it, out of combat and outside aura restrictions; a change made in a
 -- fight waits for the fight to end. The countdown text is never touched once
 -- the game owns it, so each look (bar, icon) has its own slot.

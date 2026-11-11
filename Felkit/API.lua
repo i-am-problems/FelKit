@@ -3,7 +3,7 @@ local A={}; S.API=A
 function A.chat(text)
     local db=S.db or (type(FelkitDB)=='table' and FelkitDB)
     if db and db.chatMessages==false then return end
-    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage('|cffb879efFelkit:|r '..text) end
+    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage('|cffb879efFelKit:|r '..text) end
 end
 function A.public(v)
     if issecretvalue and issecretvalue(v) then return nil end

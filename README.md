@@ -1,6 +1,6 @@
-# Felkit
+# FelKit
 
-A warlock toolkit for WoW Forever (Interface 16001). Felkit puts your shards, stones, demons, curses and DoT timers in one place, with proc alerts and raid assignments on top.
+A warlock toolkit for WoW Forever (Interface 16001). FelKit puts your shards, stones, demons, curses and DoT timers in one place, with proc alerts and raid assignments on top.
 
 <p align="center"><img src="docs/images/orb-kit.png" alt="The orb kit" width="234"></p>
 
@@ -70,7 +70,7 @@ Tick marks on the game's channel bar, so you can see when each tick of Drain Sou
 
 ### Raid assignments
 
-The raid leader or an assistant picks a curse, a crowd control spell with its raid mark, and a soulstone target for each warlock, then syncs. Warlocks running Felkit get their assignments as buttons over their orb; everyone else can get them as a chat announcement. Open it with `/fk assign`.
+The raid leader or an assistant picks a curse, a crowd control spell with its raid mark, and a soulstone target for each warlock, then syncs. Warlocks running FelKit get their assignments as buttons over their orb; everyone else can get them as a chat announcement. Open it with `/fk assign`.
 
 ### Soul Shards
 
@@ -95,4 +95,4 @@ Every module can be turned on or off and tuned from one window. Each page has a 
 
 ## Credits
 
-Felkit is a fork of Warlock All-in-One by Vitam. MIT licensed, see [LICENSE](LICENSE); credits and third-party licenses are in [NOTICE.md](NOTICE.md).
+FelKit is a fork of Warlock All-in-One by Vitam. MIT licensed, see [LICENSE](LICENSE); credits and third-party licenses are in [NOTICE.md](NOTICE.md).

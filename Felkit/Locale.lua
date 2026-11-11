@@ -2,7 +2,7 @@ local _,S=...
 local en={
  shardClickHelp='Left click: delete excess, even with auto off (one stack per click).\nRight click: settings.\nDrag the number to move.',
  waitingBag='Waiting for the last deletion to show in your bags.',
- title='Felkit',general='General',shards='Soul Shards',grimoire='Grimoire',channels='Channels',enemies='Enemies & DoTs',nightfall='Nightfall',
+ title='FelKit',general='General',shards='Soul Shards',grimoire='Grimoire',channels='Channels',enemies='Enemies & DoTs',nightfall='Nightfall',
  enabled='Enable addon',minimap='Minimap button',compact='Compact shard counter',locked='Lock frames',reset='Reset positions',demo='Demo (10 seconds)',
  scale='Frame scale',opacity='Frame opacity',width='Enemy frame width',rowHeight='Row height',spacing='Enemy spacing',fontSize='Text size',maxEnemies='Visible enemies (maximum)',healthMode='Health: 1 current / max, 2 current, 3 percent',
  keep='Maximum Soul Shards',prune='Delete excess',count='Shards: %s / %d | excess: %s',
@@ -34,7 +34,7 @@ local en={
 local fr={
  shardClickHelp='Clic gauche : supprimer le surplus, même sans auto (une pile par clic).\nClic droit : réglages.\nGlisser le nombre pour déplacer.',
  waitingBag='En attente de la suppression précédente dans vos sacs.',
- title='Felkit',general='Général',shards="Fragments d’âme",grimoire='Grimoire',channels='Canalisations',enemies='Ennemis et DoT',nightfall='Crépuscule',
+ title='FelKit',general='Général',shards="Fragments d’âme",grimoire='Grimoire',channels='Canalisations',enemies='Ennemis et DoT',nightfall='Crépuscule',
  enabled="Activer l’addon",minimap='Bouton minimap',compact='Compteur compact',locked='Verrouiller les cadres',reset='Réinitialiser les positions',demo='Démonstration (10 secondes)',
  scale='Échelle des cadres',opacity='Opacité des cadres',width='Largeur du cadre ennemis',rowHeight='Hauteur des lignes',spacing='Espacement des ennemis',fontSize='Taille du texte',maxEnemies='Ennemis visibles (maximum)',healthMode='Vie : 1 actuels / max, 2 actuels, 3 pourcentage',
  keep='Nombre maximum de fragments',prune="Supprimer l’excédent",count='Fragments : %s / %d | excédent : %s',
@@ -110,7 +110,7 @@ local kitEN={
  kitStatusOff='Action buttons are disabled',kitStatusEdit='Moving buttons · Finish moving when ready',
  kitCircleHelp='Negative distance pulls buttons closer (they may overlap).',
  kitScaleHelp='Size of the buttons and menus; the shard keeps its size.',
- kit='Action kit',kitHelp='Click the shard to fold / unfold actions. Right-click it for settings. Shift-click deletes excess shards. Drag the icon to move. Spell names follow your client language. Bind keys in WoW > Key Bindings > Felkit.',
+ kit='Action kit',kitHelp='Click the shard to fold / unfold actions. Right-click it for settings. Shift-click deletes excess shards. Drag the icon to move. Spell names follow your client language. Bind keys in WoW > Key Bindings > FelKit.',
  kitLayout='Presentation',kit_orb='Orb',kit_drain='Drain Soul',kit_circle='Circle',kit_horizontal='Horizontal',kit_vertical='Vertical',kit_grid='Compact grid',
  kit_free='Free placement',kitEdit='Move buttons',kitEditDone='Finish moving',kitReset='Reset free placement',
  kitDragHelp='Drag to move. No spell is cast from this handle.',
@@ -132,7 +132,7 @@ local kitEN={
  kitQueueCombat='List updates after combat. The 123 button opens / closes it.',
  kitQueueHelp='Lists players who type 123 in group chat or whisper. Left-click: summon (outside combat). Right-click: remove.',
  kitNotGrouped='unavailable / outside group',
- kitQueueSubtitle='Felkit · Manual summoning',kitQueueEmpty='No requests yet',
+ kitQueueSubtitle='FelKit · Manual summoning',kitQueueEmpty='No requests yet',
  kitQueueWidth='Summon window: width',kitQueueHeight='Summon window: height',kitQueueScale='Summon window: scale',
  kitQueueSizingHelp='Size and text scale of the 123 window (applied after combat).',
  kitQueueOpen='Summons',kitQueueClose='Close',kitQueueSettings='Left-click: open / close. Right-click: window settings.',
@@ -163,7 +163,7 @@ local kitFR={
  kitStatusOff='Les boutons de sorts sont désactivés',kitStatusEdit='Placement en cours · Terminez quand vous êtes prêt',
  kitCircleHelp='Une distance négative rapproche les boutons (ils peuvent se chevaucher).',
  kitScaleHelp='Taille des boutons et menus ; le fragment garde sa taille.',
- kit='Boutons de sorts',kitHelp='Cliquer sur le fragment pour replier / déplier les boutons. Clic droit : réglages. Maj-clic : supprimer le surplus. Glisser l’icône pour déplacer. Raccourcis dans WoW > Raccourcis > Felkit.',
+ kit='Boutons de sorts',kitHelp='Cliquer sur le fragment pour replier / déplier les boutons. Clic droit : réglages. Maj-clic : supprimer le surplus. Glisser l’icône pour déplacer. Raccourcis dans WoW > Raccourcis > FelKit.',
  kitLayout='Présentation',kit_circle='Cercle',kit_horizontal='Horizontale',kit_vertical='Verticale',kit_grid='Grille compacte',
  kit_free='Libre',kitEdit='Déplacer les boutons',kitEditDone='Terminer le placement',kitReset='Réinitialiser le placement',
  kitDragHelp='Glisser pour déplacer. Cette poignée ne lance aucun sort.',
@@ -185,7 +185,7 @@ local kitFR={
  kitQueueCombat='Liste actualisée après combat. Le bouton 123 l’ouvre / la ferme.',
  kitQueueHelp='Liste les joueurs qui écrivent 123 dans le chat de groupe ou en privé. Clic gauche : invoquer (hors combat). Clic droit : retirer.',
  kitNotGrouped='indisponible / hors groupe',
- kitQueueSubtitle='Felkit · Invocation manuelle',kitQueueEmpty='Aucune demande pour le moment',
+ kitQueueSubtitle='FelKit · Invocation manuelle',kitQueueEmpty='Aucune demande pour le moment',
  kitQueueWidth='Fenêtre 123 : largeur',kitQueueHeight='Fenêtre 123 : hauteur',kitQueueScale='Fenêtre 123 : échelle',
  kitQueueSizingHelp='Taille et échelle du texte de la fenêtre 123 (appliquées après combat).',
  kitQueueOpen='Invocation',kitQueueClose='Fermer',kitQueueSettings='Clic gauche : ouvrir / fermer. Clic droit : réglages de la fenêtre.',
@@ -457,7 +457,7 @@ function S.applyLocale(pref)
  for k,v in pairs(english) do S.L[k]=chosen[k] or v end
  for k,v in pairs(chosen) do S.L[k]=v end
  setmetatable(S.L,{__index=function(_,k) return english[k] end})
- BINDING_HEADER_FELKIT='Felkit'
+ BINDING_HEADER_FELKIT='FelKit'
  for _,key in ipairs({'health','soul','demon','sacrifice','link','domination','curse1','curse2','ward','armor','weapon','drain','summon','utility'}) do
   _G['BINDING_NAME_CLICK FelkitKit'..key..':LeftButton']=S.L['kit_'..key]
  end

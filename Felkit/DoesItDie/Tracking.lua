@@ -195,7 +195,7 @@ local warnedSecretGuid = false
 ---------------------------------------------------------------------------
 
 local function print(msg)
-    DEFAULT_CHAT_FRAME:AddMessage("|cff9b6cffFelkit|r |cffff6666Does It Die|r " .. msg)
+    DEFAULT_CHAT_FRAME:AddMessage("|cff9b6cffFelKit|r |cffff6666Does It Die|r " .. msg)
 end
 
 -- Always recorded to SavedVariables (db.log) for diagnosing accuracy; echoed to chat with /did debug.
@@ -992,7 +992,7 @@ end
 -- from the same token feeds another DoT, one from another token is a copy and is dropped (PR #14).
 local combatFrameAt
 local combatFrameHits = {}
--- Felkit: when the last readable hit on a mob was seen. On Forever, UNIT_COMBAT is secret in combat, so ticks
+-- FelKit: when the last readable hit on a mob was seen. On Forever, UNIT_COMBAT is secret in combat, so ticks
 -- can't be seen there: a DoT only counts a tick as missed when hits on its mob were readable after it went on.
 local readableAt = {}
 local function onUnitCombat(unit, action, flag, amount, school)

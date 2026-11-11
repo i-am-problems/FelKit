@@ -21,7 +21,7 @@ local SORT_EXPIRATION,SORT_NORMAL=5,0 -- validated in game since 0.5.5
 local ICON_CROP=(1-1/1.3)/2
 local GOLD={1,.82,0}
 local FONT='FelkitWHDotFont'
--- Felkit 'kit' bars: one native group per DoT family, in a fixed order, each
+-- FelKit 'kit' bars: one native group per DoT family, in a fixed order, each
 -- filled in its family's colour. Slots are Warlock HUD effect slots.
 local MEDIA='Interface\\AddOns\\'..addonName..'\\Media\\'
 local KIT_ORDER={3,2,1,5,6,4,7}
@@ -30,7 +30,7 @@ local KIT_COLORS={[1]={.86,.60,.20},[2]={.70,.22,.62},[3]={.56,.32,.90},[4]={.36
 P.KIT_COLORS=KIT_COLORS
 local PARKED=-20000 -- absent chained rows wait far below, invisible
 local function frame(kind,parent) return CreateFrame(kind,nil,parent,TEMPLATE) end
--- Felkit: the DoT window's font (its own face, size and outline, or the general ones).
+-- FelKit: the DoT window's font (its own face, size and outline, or the general ones).
 local function font(t,size)
     local path,outline,override=S.Media.barFont()
     t:SetFont(path,override or size,outline)

@@ -1,9 +1,9 @@
 local addon,S=...
--- Raid assignments (original Felkit code): who curses what, who controls
+-- Raid assignments (original FelKit code): who curses what, who controls
 -- which raid mark, and who soulstones whom.
 --
 -- The leader or an assistant (the party leader in a party) fills in the
--- window and presses Sync. Every warlock running Felkit gets theirs as a
+-- window and presses Sync. Every warlock running FelKit gets theirs as a
 -- small panel over the orb: a button for the curse, the control spell (with
 -- its mark) and the soulstone, each one click to cast. Warlocks without the
 -- addon get the list in chat with Announce.

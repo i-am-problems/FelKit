@@ -1009,7 +1009,7 @@ function O.syncGeneral(page)
     page.engineNote:SetText(((S.db.dotEngine=='cards')~=(S.legacyEnemies==true)) and L.dotEngineReload or '')
     syncHealth(page)
 end
--- Felkit: proc timers and raid assignments.
+-- FelKit: proc timers and raid assignments.
 local function procValue(key,field)
     return {function() return S.db.procs[key][field] end,function(v) S.db.procs[key][field]=v; apply() end}
 end

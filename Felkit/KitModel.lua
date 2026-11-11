@@ -24,7 +24,7 @@ function M.settings(old)
  local qx=qp and S.Model.number(qp.x,-20000,20000)
  local qy=qp and S.Model.number(qp.y,-20000,20000)
  if qx and qy then d.queueButtonPosition={x=qx,y=qy} end
- -- Felkit orb look and reminders.
+ -- FelKit orb look and reminders.
  local N=S.Model.number
  d.orbSize=N(old.orbSize,40,96,58); d.smallScale=N(old.smallScale,40,90,62)
  d.rowDrop=N(old.rowDrop,0,120,0); d.orbArc=N(old.orbArc,120,300,220); d.orbGap=N(old.orbGap,0,24,7); d.rowGap=N(old.rowGap,0,24,7)

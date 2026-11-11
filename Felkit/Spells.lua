@@ -373,7 +373,7 @@ function P.annotate(tip,id,entry)
     tip:AddLine(' ')
     if A.call(IsShiftKeyDown)==true then
         for line in (P.text(id,entry and entry.kind,true)..'\n'):gmatch('(.-)\n') do
-            if line==L.spHeading then tip:AddLine('Felkit — '..line,0.78,0.55,1,true)
+            if line==L.spHeading then tip:AddLine('FelKit: '..line,0.78,0.55,1,true)
             else tip:AddLine(line=='' and ' ' or line,0.88,0.88,0.92,true) end
         end
     else

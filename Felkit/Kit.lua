@@ -641,7 +641,7 @@ function K.visuals()
    b.time:SetText('')
   end
   local missing=g.reminder and active==false and b:GetAttribute('available')
-  -- Felkit reminders: no soulstone out (and it's ready), no healthstone carried.
+  -- FelKit reminders: no soulstone out (and it's ready), no healthstone carried.
   if g.key=='soul' then missing=b:GetAttribute('available') and active==false and not (remaining and remaining>1.5) end
   if g.key=='health' then missing=b:GetAttribute('available') and count==0 end
   if missing and S.db.kit.reminders and S.db.kit.reminders[g.key]==false then missing=false end

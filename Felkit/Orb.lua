@@ -1,7 +1,7 @@
 local addon,S=...
 -- Orb layout: the shard counter becomes a glass orb, the main tools sit on an
 -- arc round its top, the talent buttons sit small under it, and the everyday
--- buffs make a row under a fel divider. Original Felkit code and artwork.
+-- buffs make a row under a fel divider. Original FelKit code and artwork.
 local O={}; S.Orb=O
 local A=S.API
 local MEDIA='Interface\\AddOns\\'..addon..'\\Media\\'
@@ -161,7 +161,7 @@ function O.skinCounter()
     end
 end
 
--- Centre art: Felkit's own crystal shards, or the game's Soul Shard or class icon.
+-- Centre art: FelKit's own crystal shards, or the game's Soul Shard or class icon.
 function O.centreArt(c,size)
     local art=S.db.kit.orbArt or 'arcane'
     local t=c.orbArt

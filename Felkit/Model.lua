@@ -24,7 +24,7 @@ function M.settings(old)
         positions={}, channelSpells={}}
     -- Saved positions replace these one by one.
     for k,p in pairs(M.defaultPositions) do d.positions[k]={x=p.x,y=p.y} end
-    -- Felkit: which DoT engine draws enemies (applied at load, so a reload switches).
+    -- FelKit: which DoT engine draws enemies (applied at load, so a reload switches).
     d.dotEngine=old.dotEngine=='cards' and 'cards' or 'window'
     d.fontFace=type(old.fontFace)=='string' and old.fontFace or 'friz'
     d.fontOutline=type(old.fontOutline)=='string' and old.fontOutline or 'OUTLINE'

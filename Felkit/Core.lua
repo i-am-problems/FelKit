@@ -229,7 +229,7 @@ function S.diagnostics()
 end
 local function slash(text)
     text=(text or ''):match('^%s*(.-)%s*$')
-    -- Felkit: switch DoT looks quickly while testing.
+    -- FelKit: switch DoT looks quickly while testing.
     local style=text:match('^style%s*(%a*)$')
     if style then
         local list={'hud','equal','kit'}

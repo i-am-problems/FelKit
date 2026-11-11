@@ -1,5 +1,5 @@
 local _,S=...
--- Strings for Felkit's own modules (proc timers, raid assignments).
+-- Strings for FelKit's own modules (proc timers, raid assignments).
 local en={
  nav_procs='Proc timers',nav_raid='Raid assignments',
  navDesc_procs='Decimation and Nightfall timers, drawn by the game so they work in combat.',
@@ -17,7 +17,7 @@ local en={
  procIdSet='%s timer now follows buff ID %s.',
  procHelp='/fk procs test: test timers to drag. /fk procs lock. /fk procs reset. /fk procs decimation <buff ID> (or nightfall <ID>): follow another buff ID.',
  assignTitle='Raid assignments',
- assignWindowHelp='The leader or an assistant picks a curse, a crowd control spell with its raid mark, and a soulstone target for each warlock, then presses Sync. Warlocks running Felkit get theirs as buttons over their orb. Announce posts the list in group chat for everyone else.',
+ assignWindowHelp='The leader or an assistant picks a curse, a crowd control spell with its raid mark, and a soulstone target for each warlock, then presses Sync. Warlocks running FelKit get theirs as buttons over their orb. Announce posts the list in group chat for everyone else.',
  assignColWarlock='Warlock',assignColCurse='Curse',assignColControl='Control',assignColMark='Mark',assignColSoulstone='Soulstone',
  assignNone='None',assignNoMark='No mark',assignGone='(left)',
  assignNoWarlocks='No warlocks in your group yet.',
@@ -39,7 +39,7 @@ local en={
  assignPanelCardHelp='Your own assignments, as buttons over the orb.',
  assignShowPanel='Show my assignment buttons',assignButtonSize='Button size',assignSmall='Small',assignFull='Same as the kit',
  assignOffsetX='Move left / right',assignOffsetY='Move up / down',
- fontTitle='Font',fontHelp='The font for Felkit\'s texts. The DoT bars can use their own (Enemies & DoTs). Fonts from other addons that use LibSharedMedia are listed too. Some texts change after a reload.',
+ fontTitle='Font',fontHelp='The font for FelKit\'s texts. The DoT bars can use their own (Enemies & DoTs). Fonts from other addons that use LibSharedMedia are listed too. Some texts change after a reload.',
  fontFace='Font',fontOutline='Outline',fontUseGeneral='Same as General',fontAuto='Auto',
  texTitle='Bar texture',texAuto='Style default',texHealth='Use the bar texture on health bars too',
  iconPlace='Where the DoT icons go',iconPlaceRight='Right of the health bar',iconPlaceBelow='Under the health bar',

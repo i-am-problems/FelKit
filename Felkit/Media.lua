@@ -1,6 +1,6 @@
 local addon,S=...
--- Fonts and bar textures (original Felkit code). The game's own fonts and a
--- few textures ship with Felkit; anything another addon registered with
+-- Fonts and bar textures (original FelKit code). The game's own fonts and a
+-- few textures ship with FelKit; anything another addon registered with
 -- LibSharedMedia-3.0 is offered too.
 local M={}; S.Media=M
 local MEDIA='Interface\\AddOns\\'..addon..'\\Media\\'
@@ -12,10 +12,10 @@ M.FONTS={
     {value='skurri',label='Skurri',path='Fonts\\SKURRI.TTF'},
 }
 M.TEXTURES={
-    {value='felkit',label='Felkit sheen',path=MEDIA..'fk_bar'},
-    {value='glass',label='Felkit glass',path=MEDIA..'fk_bar_glass'},
-    {value='gradient',label='Felkit gradient',path=MEDIA..'fk_bar_gradient'},
-    {value='stripes',label='Felkit stripes',path=MEDIA..'fk_bar_stripes'},
+    {value='felkit',label='FelKit sheen',path=MEDIA..'fk_bar'},
+    {value='glass',label='FelKit glass',path=MEDIA..'fk_bar_glass'},
+    {value='gradient',label='FelKit gradient',path=MEDIA..'fk_bar_gradient'},
+    {value='stripes',label='FelKit stripes',path=MEDIA..'fk_bar_stripes'},
     {value='flat',label='Flat',path='Interface\\Buttons\\WHITE8X8'},
     {value='blizzard',label='Blizzard',path='Interface\\TargetingFrame\\UI-StatusBar'},
     {value='raid',label='Blizzard raid',path='Interface\\RaidFrame\\Raid-Bar-Hp-Fill'},
@@ -58,7 +58,7 @@ local function find(kind,value)
     for _,o in ipairs(kind=='font' and M.FONTS or M.TEXTURES) do if o.value==value then return o.path end end
 end
 
--- General font: every Felkit text that has no override.
+-- General font: every FelKit text that has no override.
 function M.fontPath()
     return find('font',S.db and S.db.fontFace) or STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF'
 end
