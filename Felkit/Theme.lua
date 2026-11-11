@@ -337,8 +337,11 @@ function T.slider(parent,width,title,lo,hi,step,get,set,format,icon)
     -- No mouse wheel: scrolling the settings must never change a value by accident.
     r.minus=CreateFrame('Button',nil,r); r.minus:SetSize(16,16); r.minus:SetPoint('RIGHT',s,'LEFT',-4,0)
     r.plus=CreateFrame('Button',nil,r); r.plus:SetSize(16,16); r.plus:SetPoint('LEFT',s,'RIGHT',4,0)
-    for _,pair in ipairs({{r.minus,'−',-1},{r.plus,'+',1}}) do
-        local b=pair[1]; b.t=T.text(b,14,T.c.muted); b.t:SetPoint('CENTER'); b.t:SetJustifyH('CENTER'); b.t:SetText(pair[2])
+    -- Drawn bars, not text: the game fonts have no minus sign.
+    for _,pair in ipairs({{r.minus,false,-1},{r.plus,true,1}}) do
+        local b=pair[1]
+        b.h=b:CreateTexture(nil,'ARTWORK'); b.h:SetSize(8,2); b.h:SetPoint('CENTER'); b.h:SetColorTexture(T.rgb(T.c.muted))
+        if pair[2] then b.v=b:CreateTexture(nil,'ARTWORK'); b.v:SetSize(2,8); b.v:SetPoint('CENTER'); b.v:SetColorTexture(T.rgb(T.c.muted)) end
         b:SetScript('OnClick',function() if r.enabled~=false then s:SetValue(clamp(get()+pair[3]*step)) end end)
     end
     function r:Sync()
