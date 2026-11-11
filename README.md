@@ -2,7 +2,7 @@
 
 A warlock toolkit for WoW Forever (Interface 16001). Felkit puts your shards, stones, demons, curses and DoT timers in one place, with proc alerts and raid assignments on top.
 
-<p align="center"><img src="docs/images/orb-kit.png" alt="The orb kit" width="300"></p>
+<p align="center"><img src="docs/images/orb-kit.png" alt="The orb kit" width="234"></p>
 
 ## Install
 
@@ -17,7 +17,7 @@ A ring of buttons around your soul shard counter. The orb in the middle shows ho
 - Buttons with several choices, like demons, open a flyout with the other spells.
 - The size, spacing, ring colors and centre crystal are all adjustable. Other layouts are available too: a row, a column, a circle, a grid or free placement.
 
-<p align="center"><img src="docs/images/orb-kit-flyout.png" alt="Demon flyout" width="360"></p>
+<p align="center"><img src="docs/images/orb-kit-flyout.png" alt="Demon flyout" width="296"></p>
 
 #### Reminders
 
@@ -50,15 +50,15 @@ Three styles:
 The health bars also show **Does It Die**: a marker for how much health your running DoTs will still take off, so you can tell whether a mob will die without another cast. Bar textures and fonts can be changed, including those from other addons that use LibSharedMedia.
 
 <p align="center">
-  <img src="docs/images/dot-bars.png" alt="Kit bars" width="320">
-  <img src="docs/images/dot-icons.png" alt="Warlock HUD icons under the health bars" width="370">
+  <img src="docs/images/dot-bars.png" alt="Kit bars" width="305">
+  <img src="docs/images/dot-icons.png" alt="Warlock HUD icons under the health bars" width="316">
 </p>
 
 ### Nightfall
 
 When Shadow Trance procs, violet bars flare up on both sides of your character and a louder sound plays, so you don't miss a free Shadow Bolt.
 
-<p align="center"><img src="docs/images/nightfall.png" alt="Nightfall alert" width="395"></p>
+<p align="center"><img src="docs/images/nightfall.png" alt="Nightfall alert" width="360"></p>
 
 ### Proc timers
 
