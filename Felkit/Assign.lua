@@ -274,7 +274,7 @@ function AS.apply()
     p:ClearAllPoints(); p:SetPoint('CENTER',S.UI.counter,'CENTER',cfg.x,lift+cfg.y)
     p:SetSize(math.max(1,#shown*gap),size)
     p.title:ClearAllPoints(); p.title:SetPoint('BOTTOM',p,'TOP',0,4)
-    p:SetShown(S.db.enabled and cfg.panel and #shown>0)
+    p:SetShown(S.db.enabled and S.db.raidAssign and cfg.panel and #shown>0)
     if AS.window and AS.window:IsShown() then AS.render() end
 end
 
@@ -415,6 +415,7 @@ function AS.create()
         pcall(f.RegisterEvent,f,ev)
     end
     f:SetScript('OnEvent',function(_,event,...)
+        if not (S.db.enabled and S.db.raidAssign) then return end
         if event=='CHAT_MSG_ADDON' then onMessage(...); return end
         if event=='GROUP_LEFT' or (event=='GROUP_ROSTER_UPDATE' and A.call(IsInGroup)~=true) then
             local a=store()

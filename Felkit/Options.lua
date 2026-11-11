@@ -361,6 +361,8 @@ local MODULES={
     {key='kit',icon=I.kit,acc=function() return kitBool('enabled') end},
     {key='shards',icon=I.shards,acc=function() return bool('shards') end},
     {key='nightfall',icon=I.nightfall,acc=function() return bool('nightfall') end},
+    {key='procs',icon=I.timer,acc=function() return bool('procTimers') end},
+    {key='raid',icon=I.crowd,acc=function() return bool('raidAssign') end},
     {key='grimoire',icon=I.grimoire,acc=function() return bool('grimoire') end},
     {key='channels',icon=I.channels,acc=function() return bool('channels') end},
 }
@@ -397,7 +399,7 @@ function B.home(page)
 end
 function O.syncHome(page)
     local on,total=0,0
-    for _,v in ipairs({S.db.enemies,S.db.kit.enabled,S.db.shards,S.db.nightfall,S.db.grimoire,S.db.channels}) do
+    for _,v in ipairs({S.db.enemies,S.db.kit.enabled,S.db.shards,S.db.nightfall,S.db.grimoire,S.db.channels,S.db.procTimers,S.db.raidAssign}) do
         total=total+1; if v then on=on+1 end
     end
     page.status:SetText(S.db.enabled and string.format(L.homeStatus,on,total) or L.homeDisabled)
@@ -1061,13 +1063,15 @@ O.NAV={
         tabIcons={display=I.reveal,timers=I.timer,health=I.health,frame=I.move,advanced=I.engine,did=I.target}},
     {key='nightfall',group='combat',icon=I.nightfall,build=B.nightfall,
         master=function() return bool('nightfall') end,module=function() return S.db.nightfall end},
-    {key='procs',group='combat',icon=I.timer,build=B.procs},
+    {key='procs',group='combat',icon=I.timer,build=B.procs,
+        master=function() return bool('procTimers') end,module=function() return S.db.procTimers end},
     {key='channels',group='combat',icon=I.channels,build=B.channels,
         master=function() return bool('channels') end,module=function() return S.db.channels end},
     {key='kit',group='tools',icon=I.kit,build=B.kit,sync=function(p) O.syncKit(p) end,
         master=function() return kitBool('enabled') end,module=function() return S.db.kit.enabled end,tabs={'layout','buttons','reminders','summons'},
         tabIcons={layout=I.move,buttons=I.kit,reminders=I.note,summons=I.summon}},
-    {key='raid',group='tools',icon=I.crowd,build=B.raid},
+    {key='raid',group='tools',icon=I.crowd,build=B.raid,
+        master=function() return bool('raidAssign') end,module=function() return S.db.raidAssign end},
     {key='shards',group='tools',icon=I.shards,build=B.shards,sync=function(p) O.syncShards(p) end,
         master=function() return bool('shards') end,module=function() return S.db.shards end},
     {key='grimoire',group='tools',icon=I.grimoire,build=B.grimoire,sync=function() O.renderCatalogue() end,

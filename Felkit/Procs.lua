@@ -213,7 +213,7 @@ function P.refresh()
     P.pending=nil
     for key,p in pairs(P.procs) do
         local c=cfg(key)
-        local on=S.db.enabled and c.enabled
+        local on=S.db.enabled and S.db.procTimers and c.enabled
         place(p)
         p.test:SetShown(P.testing==true and on)
         if p.test:IsShown() then

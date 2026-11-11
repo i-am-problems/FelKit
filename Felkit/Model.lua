@@ -13,7 +13,7 @@ M.defaultPositions={counter={x=343.888671875,y=7.4444580078125},summons={x=239,y
 function M.settings(old)
     old = type(old) == 'table' and old or {}
     local d = {version=1, enabled=true, shards=true, grimoire=true, spellDetails=true, spellTooltips=true, channels=true, enemies=true,
-        nightfall=true, visual=true, sound=true, pulse=true, minimap=true, compact=true, chatMessages=false,
+        nightfall=true, procTimers=true, raidAssign=true, visual=true, sound=true, pulse=true, minimap=true, compact=true, chatMessages=false,
         dotAuto=true, dotPredict=true, dotChannels=true, dotSelectionFrame=true, dotDurationMode=1, dotWarnings=true, dotPulse=true, dotHealth=true, dotMarkers=true, dotTicks=false, dotTargetFirst=true, dotWarning=3, warnSix=false, warnThree=false, dotProfiles={},
         dotFilter=1, dotLayout=1, dotSlots=6, onboarded=false, enemyHeader=false, tickColor=1, tickAlpha=100, tickWidth=2,
         locked=false, autoShards=true, pruneSoulBag=false, tickAnimate=true, tickMarks=false, keep=6, scale=1, opacity=0.9, intensity=0.35, width=280,
