@@ -218,6 +218,42 @@ local function shapePicker(page,card,key,title,acc,when)
     card:Add(g,h,10)
     return register(page,key,g,when)
 end
+-- Colour swatch tiles: a disc in each colour with its name; 'none' is an empty ring.
+local function swatchPicker(page,card,key,title,keys,colors,labelPrefix,acc,when)
+    local t=T.text(card,12); t:SetText(title); t:SetWidth(card.inner); card:Add(t,t:GetStringHeight(),6)
+    local gap,h=6,52
+    local w=math.floor((card.inner-(#keys-1)*gap)/#keys)
+    local g=CreateFrame('Frame',nil,card); g:SetSize(card.inner,h); g.tiles={}
+    for i,k in ipairs(keys) do
+        local b=CreateFrame('Button',nil,g); b:SetSize(w,h); b:SetPoint('TOPLEFT',(i-1)*(w+gap),0)
+        T.skin(b,T.c.bg,T.c.line)
+        b.ring=b:CreateTexture(nil,'ARTWORK',nil,1); b.ring:SetTexture(DISC); b.ring:SetSize(24,24); b.ring:SetPoint('TOP',0,-6)
+        b.fill=b:CreateTexture(nil,'ARTWORK',nil,2); b.fill:SetTexture(DISC); b.fill:SetSize(18,18); b.fill:SetPoint('CENTER',b.ring)
+        local c=colors[k]
+        if c then b.fill:SetVertexColor(c[1],c[2],c[3],1) else b.fill:SetVertexColor(T.rgb(T.c.bg)) end
+        b.label=T.text(b,10); b.label:SetText(L[labelPrefix..k]); b.label:SetPoint('BOTTOM',0,6)
+        b.label:SetWidth(w-4); b.label:SetJustifyH('CENTER'); b.label:SetWordWrap(false)
+        b.value=k
+        b:SetScript('OnClick',function() if g.enabled~=false then acc[2](k); g:Sync() end end)
+        b:SetScript('OnEnter',function() b.hot=true; g:Sync() end)
+        b:SetScript('OnLeave',function() b.hot=false; g:Sync() end)
+        g.tiles[i]=b
+    end
+    function g:Sync()
+        local v=acc[1]()
+        for _,b in ipairs(self.tiles) do
+            local on=b.value==v
+            T.paint(b,on and T.c.raised or (b.hot and T.c.card or T.c.bg),on and T.c.accent or (b.hot and T.c.accentDim or T.c.line))
+            b.ring:SetVertexColor(T.rgb(on and T.c.text or T.c.faint))
+            b.label:SetTextColor(T.rgb(on and T.c.text or T.c.muted))
+        end
+        self:SetAlpha(self.enabled==false and 0.45 or 1)
+    end
+    function g:SetActive(on) self.enabled=on~=false; self:Sync() end
+    g:Sync()
+    card:Add(g,h,10)
+    return register(page,key,g,when)
+end
 local function buttonRow(page,card,list)
     local row=CreateFrame('Frame',nil,card); row:SetSize(card.inner,28)
     local x=0; local out={}
@@ -564,11 +600,9 @@ function B.multiTarget(page)
     segment(page,dots,'mtIconPlace',L.iconPlace,{{value='right',label=L.iconPlaceRight},{value='below',label=L.iconPlaceBelow}},
         mtValue('iconPlace'),isHud)
     shapePicker(page,dots,'mtIconShape',L.iconShape,mtValue('iconShape'),isHud)
-    dropdown(page,dots,'mtIconBorder',L.iconBorder,function()
-        local out={}
-        for _,k in ipairs(S.Media.BORDERS) do out[#out+1]={value=k,label=L['iconBorder_'..k]} end
-        return out
-    end,mtValue('iconBorder'),isHud)
+    local border=mtValue('iconBorder')
+    swatchPicker(page,dots,'mtIconBorder',L.iconBorder,S.Media.BORDERS,S.Media.BORDER_COLORS,'iconBorder_',
+        {border[1],function(v) border[2](v); local shape=O.controls.mtIconShape; if shape then shape:Sync() end end},isHud)
     slider(page,dots,'mtIconSize',L.iconSize,0,48,1,{function() return p().iconSize end,
         function(v) p().iconSize=math.floor(v); apply() end},function(v) return v==0 and L.fontAuto or (v..' px') end,isHud)
     toggle(page,dots,'mtIconTimeBar',L.iconTimeBar,L.iconTimeBarHelp,mtBool('iconTimeBar'),isHud)
