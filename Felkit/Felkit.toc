@@ -4,7 +4,7 @@
 ## Author: RT Labs
 ## X-Credits: Built on Warlock All-in-One by Vitam (MIT), Warlock HUD multi-target window (Apache 2.0), Does It Die by Joe Greive (MIT)
 ## IconTexture: Interface\AddOns\Felkit\Media\logo
-## Version: 0.1.0
+## Version: 1.0.0
 ## Category: Class
 ## SavedVariables: FelkitDB, FelkitDIDDB
 ## SavedVariablesPerCharacter: FelkitCharDB
