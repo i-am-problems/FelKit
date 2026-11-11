@@ -15,10 +15,27 @@ Copy the `Felkit` folder (the one with `Felkit.toc`) into `World of Warcraft\_fo
 A ring of buttons around your soul shard counter. The orb in the middle shows how many shards you carry. Around it sit your healthstone and soulstone, your curses, your demon and your ward. Smaller buttons hold sacrifice, link and domination, and the bottom row holds your armor, weapon stone, Drain Soul, summons and utility spells.
 
 - Buttons with several choices, like demons, open a flyout with the other spells.
-- The healthstone and soulstone buttons glow when you have none, so you remember to make them.
 - The size, spacing, ring colors and centre crystal are all adjustable. Other layouts are available too: a row, a column, a circle, a grid or free placement.
 
 <p align="center"><img src="docs/images/orb-kit-flyout.png" alt="Demon flyout" width="360"></p>
+
+#### Reminders
+
+A button glows while something it handles is missing, so you notice before the pull. Each reminder can be turned on or off:
+
+- **Soulstone:** nobody has one of your soulstones and it is off cooldown.
+- **Healthstone:** there is none in your bags.
+- **Armor:** Demon Armor or Demon Skin is off.
+- **Weapon stone:** your weapon has no Firestone or Spellstone on it.
+- **Soul Link:** your demon is out but Soul Link is off.
+
+In the orb picture above, the healthstone and soulstone buttons are glowing because both are missing.
+
+#### Summons
+
+The summon button opens a request list. Anyone in your group who types `123` in group chat, or whispers it to you, is added to it. Click a name to cast Ritual of Summoning on that player, or right-click to remove them. Requests expire after 10 minutes, and the list waits until combat ends before it changes. The window's size and the button's look and position can be adjusted in the kit's Summons settings.
+
+<p align="center"><img src="docs/images/summon-requests.png" alt="Summon requests window" width="400"></p>
 
 ### Enemies & DoTs
 
