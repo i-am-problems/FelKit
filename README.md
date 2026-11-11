@@ -15,4 +15,4 @@ Copy the `Felkit` folder (the one with `Felkit.toc`) into `World of Warcraft\_fo
 
 ## Credits
 
-Felkit is a fork of Warlock All-in-One by Vitam (MIT). See [NOTICE.md](NOTICE.md) for all credits and licenses.
+Felkit is a fork of Warlock All-in-One by Vitam. MIT licensed, see [LICENSE](LICENSE); credits and third-party licenses are in [NOTICE.md](NOTICE.md).
