@@ -359,11 +359,6 @@ function WH.MultiTargetIdentity.New(getRows, spells, rowLimit, plain,
         if row.source == "ghost" then return end
         local unit = row.unit
         local source = row.source
-        if source == "party" and (not IsInGroup or not IsInGroup()
-            or (IsInRaid and IsInRaid())) then ClearIdentity(row); return end
-        if source == "raid" and (not IsInRaid or not IsInRaid()) then
-            ClearIdentity(row); return
-        end
         local existsOK, exists = pcall(UnitExists, unit)
         if not existsOK or not Plain(exists) or not exists then
             ClearIdentity(row)
@@ -474,16 +469,19 @@ function WH.MultiTargetIdentity.New(getRows, spells, rowLimit, plain,
             if row.eligible then
                 local guid = ReadableGuid(row.unit)
                 local duplicate = guid ~= "unavailable" and seen[guid]
-                if not duplicate and UnitIsUnit then
+                -- Each nameplate is a different enemy. The target joins only when
+                -- the game says it is none of them: in instances the answer is
+                -- hidden in combat, and the enemy keeps its nameplate row.
+                if not duplicate and row.source ~= "nameplate" then
                     for _, prior in ipairs(accepted) do
                         -- Distinct public GUIDs already prove distinct units.
-                        local ok, same = false,false
                         if guid=='unavailable' or prior.guid=='unavailable' then
-                            ok,same=pcall(UnitIsUnit, row.unit, prior.unit)
-                        end
-                        if ok and Plain(same) and same then
-                            duplicate = true
-                            break
+                            local ok, same = false, nil
+                            if UnitIsUnit then ok,same=pcall(UnitIsUnit, row.unit, prior.unit) end
+                            if not ok or not Plain(same) or same then
+                                duplicate = true
+                                break
+                            end
                         end
                     end
                 end

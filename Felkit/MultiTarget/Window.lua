@@ -27,8 +27,6 @@ local ROWS = 16
 local SOURCE_UNITS = {}
 for i = 1, ROWS do SOURCE_UNITS[#SOURCE_UNITS + 1] = "nameplate" .. i end
 SOURCE_UNITS[#SOURCE_UNITS + 1] = "target"
-for i = 1, 4 do SOURCE_UNITS[#SOURCE_UNITS + 1] = "party" .. i .. "target" end
-for i = 1, 40 do SOURCE_UNITS[#SOURCE_UNITS + 1] = "raid" .. i .. "target" end
 local LIVE_UNITS = #SOURCE_UNITS
 for i = 1, ROWS do SOURCE_UNITS[#SOURCE_UNITS + 1] = "ghost" .. i end
 local ICON_SIZE = 24
@@ -469,8 +467,7 @@ BuildRow = function(i,unit,parent,width,size,synthetic)
         selection:SetSize(4, size + 5)
         selection:SetPoint("LEFT", display, "LEFT", 0, 0)
         selection:SetColorTexture(0.86, 0.66, 0.25, 0)
-        local source = synthetic and "preview" or (i > LIVE_UNITS and "ghost" or (i <= ROWS and "nameplate" or
-            (i == ROWS + 1 and "target" or (i <= ROWS + 5 and "party" or "raid"))))
+        local source = synthetic and "preview" or (i > LIVE_UNITS and "ghost" or (i <= ROWS and "nameplate" or "target"))
         local auras
         if source == "ghost" or synthetic then
             auras = CreateFrame("Frame", nil, iconHolder)
@@ -1012,8 +1009,6 @@ events:SetScript("OnEvent", function(_, event, unit)
             or event == "UNIT_TARGET")
             and (not Plain(unit) or type(unit) ~= "string"
             or (event ~= "UNIT_TARGET" and not unit:match("^nameplate%d+$")
-                and not unit:match("^party%d+target$")
-                and not unit:match("^raid%d+target$")
                 and unit ~= "target"))
             then return end
         if event=='UNIT_TARGET' and unit~='player' and unit~='pet' and unit~='target'
@@ -1034,8 +1029,6 @@ events:SetScript("OnEvent", function(_, event, unit)
         end
         if event == "PLAYER_TARGET_CHANGED" then
             RefreshSourceAuras("target")
-        elseif event == "UNIT_TARGET" and Plain(unit) and type(unit) == "string" then
-            RefreshSourceAuras(unit .. "target")
         end
         local token = Plain(unit) and type(unit) == "string" and unit or nil
         if event == "UNIT_TARGET" and token then
@@ -1043,9 +1036,7 @@ events:SetScript("OnEvent", function(_, event, unit)
                 -- The enemy's own target: only its row.
                 dirtyUnits[token] = true
             elseif token:match("^raid%d+$") or token:match("^party%d+$") then
-                -- A member's target: its target row, and the enemy rows that
-                -- read who the group targets.
-                dirtyUnits[token .. "target"] = true
+                -- A member's target: the enemy rows that read who the group targets.
                 dirtyMobs = true
             else
                 dirtyAll = true
