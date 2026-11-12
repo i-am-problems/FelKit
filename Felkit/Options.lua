@@ -689,6 +689,9 @@ function B.multiTarget(page)
         function(v) p().multiDotAlpha=v/100; apply() end},pct,function() return not p().transparent end)
     toggle(page,win,'mtHeader',L.mtHeader,L.mtHeaderHelp,mtBool('header'))
     toggle(page,win,'mtHideOOC',L.mtHideOOC,nil,mtBool('multiDotHideOutOfCombat'))
+    toggle(page,win,'mtInstances',L.mtInstances,nil,mtBool('instances'))
+    local warn=T.text(win,11,T.c.gold); warn:SetWidth(win.inner); warn:SetWordWrap(true); warn:SetText(L.mtInstancesWarn)
+    win:Add(warn,warn:GetStringHeight(),6)
     slider(page,win,'mtScale',L.scale,70,160,5,{function() return math.floor(p().multiDotScale*100+0.5) end,
         function(v) p().multiDotScale=v/100; apply() end},pct)
     buttonRow(page,win,{

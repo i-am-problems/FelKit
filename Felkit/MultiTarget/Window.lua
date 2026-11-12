@@ -917,7 +917,7 @@ WH.MultiTarget = {
 }
 
 local events = CreateFrame("Frame")
-for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_REGEN_ENABLED",
+for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "PLAYER_REGEN_ENABLED",
     "PLAYER_REGEN_DISABLED",
     "ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_TALENT_UPDATE", "SPELLS_CHANGED",
     "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED",
@@ -941,7 +941,7 @@ SyncEvents = function()
     unitEventsOn = on
 end
 events:SetScript("OnEvent", function(_, event, unit)
-    if event == "PLAYER_LOGIN" or event == "PLAYER_REGEN_ENABLED"
+    if event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED"
         or event == "ACTIVE_TALENT_GROUP_CHANGED"
         or event == "PLAYER_TALENT_UPDATE" or event == "SPELLS_CHANGED" then
         if pending or event ~= "PLAYER_REGEN_ENABLED" then GuardedRefresh() end

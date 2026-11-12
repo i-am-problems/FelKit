@@ -45,10 +45,18 @@ local function refreshOptions()
     if S.Options and S.Options.frame and S.Options.frame:IsShown() then pcall(S.Options.refresh) end
 end
 -- multiDotEnabled is the module switch itself, so the window's close button,
--- the settings page and the home tiles always agree.
+-- the settings page and the home tiles always agree. With instances turned off
+-- the module rests inside dungeons, raids and scenarios.
+local function inInstance()
+    if not IsInInstance then return false end
+    local inside, kind = IsInInstance()
+    return inside == true and (kind == 'party' or kind == 'raid' or kind == 'scenario')
+end
 local profileMeta = {
-    __index = function(_, key)
-        if key == 'multiDotEnabled' then return S.db ~= nil and S.db.enemies == true end
+    __index = function(t, key)
+        if key == 'multiDotEnabled' then
+            return S.db ~= nil and S.db.enemies == true and not (rawget(t, 'instances') == false and inInstance())
+        end
     end,
     __newindex = function(t, key, value)
         if key == 'multiDotEnabled' then

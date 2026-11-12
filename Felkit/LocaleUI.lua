@@ -537,6 +537,8 @@ en.mtDidExternal="Does It Die is installed and already draws on nameplates; this
 en.mtTransparent="Transparent frame"
 en.mtHeader="Header (title and count)"
 en.mtHeaderHelp="Without the header, the window can't be moved or resized."
+en.mtInstances="Show in dungeons and raids"
+en.mtInstancesWarn="Inside dungeons and raids the WoW client hides enemy details from addons during combat, so the window may miss enemies or show them oddly there. If it causes problems, turn this off."
 en.mtEffectsHelp2="Shown only for spells you know. Changes apply out of combat."
 en.mtCreditDID="Health bar zone from Does It Die by Joe Greive (MIT License)."
 fr.mtCardDots="Affichage des DoT"
@@ -558,6 +560,8 @@ fr.mtDidExternal="Does It Die est installé et dessine déjà sur les barres de 
 fr.mtTransparent="Cadre transparent"
 fr.mtHeader="En-tête (titre et décompte)"
 fr.mtHeaderHelp="Sans en-tête, la fenêtre ne peut être ni déplacée ni redimensionnée."
+fr.mtInstances="Afficher en donjon et en raid"
+fr.mtInstancesWarn="En donjon et en raid, le client WoW cache aux addons les détails des ennemis pendant le combat : la fenêtre peut alors en oublier ou mal les afficher. En cas de souci, désactivez cette option."
 fr.mtEffectsHelp2="Affichés seulement pour les sorts connus. Les changements s’appliquent hors combat."
 fr.mtCreditDID="Zone de vie issue de Does It Die par Joe Greive (licence MIT)."
 -- 0.7.1: tabs, compact rows, click targeting, Does It Die look, credits, Nightfall layout.
