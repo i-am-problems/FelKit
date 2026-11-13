@@ -50,7 +50,7 @@ function T.rgb(c,a) return c[1],c[2],c[3],a or c[4] or 1 end
 function T.text(parent,size,color,flags)
     local f=parent:CreateFontString(nil,'OVERLAY','GameFontNormal')
     -- A missing alphabet font falls back to the client font rather than no font.
-    if f:SetFont(T.font(),size or 12,flags or '')==false then f:SetFont(STANDARD_TEXT_FONT or 'Fonts\FRIZQT__.TTF',size or 12,flags or '') end
+    if f:SetFont(T.font(),size or 12,flags or '')==false then f:SetFont(STANDARD_TEXT_FONT or 'Fonts\\FRIZQT__.TTF',size or 12,flags or '') end
     f:SetTextColor(T.rgb(color or T.c.text)); f:SetJustifyH('LEFT')
     return f
 end
