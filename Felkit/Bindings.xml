@@ -1,18 +1,18 @@
 <Bindings>
- <Binding name="CLICK FelkitShardIcon:LeftButton" header="FELKIT"/>
- <Binding name="CLICK FelkitKithealth:LeftButton"/>
- <Binding name="CLICK FelkitKitsoul:LeftButton"/>
- <Binding name="CLICK FelkitKitdemon:LeftButton"/>
- <Binding name="CLICK FelkitKitsacrifice:LeftButton"/>
- <Binding name="CLICK FelkitKitlink:LeftButton"/>
- <Binding name="CLICK FelkitKitdomination:LeftButton"/>
- <Binding name="CLICK FelkitKitcurse1:LeftButton"/>
- <Binding name="CLICK FelkitKitcurse2:LeftButton"/>
- <Binding name="CLICK FelkitKitward:LeftButton"/>
- <Binding name="CLICK FelkitKitarmor:LeftButton"/>
- <Binding name="CLICK FelkitKitweapon:LeftButton"/>
- <Binding name="CLICK FelkitKitdrain:LeftButton"/>
- <Binding name="CLICK FelkitKitsummon:LeftButton"/>
- <Binding name="CLICK FelkitKitutility:LeftButton"/>
- <Binding name="CLICK FelkitQueueToggle:LeftButton"/>
+ <Binding name="CLICK FelkitShardIcon:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKithealth:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitsoul:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitdemon:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitsacrifice:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitlink:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitdomination:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitcurse1:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitcurse2:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitward:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitarmor:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitweapon:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitdrain:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitsummon:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitKitutility:LeftButton" category="BINDING_HEADER_FELKIT"/>
+ <Binding name="CLICK FelkitQueueToggle:LeftButton" category="BINDING_HEADER_FELKIT"/>
 </Bindings>
