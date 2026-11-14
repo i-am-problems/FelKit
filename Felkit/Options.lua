@@ -13,7 +13,7 @@ local HEADER_H=82
 local function apply() S.refreshAll() end
 -- Icons of individual controls, by setting key. Only where the art fits.
 local ICON={
-    preview=I.eye, enemiesCombatOnly=I.reveal, dotTargetFirst=I.target, dotMarkers=I.pet, maxEnemies=I.crowd,
+    preview=I.eye, enemiesCombatOnly=I.reveal, dotTargetFirst=I.target, dotMarkers=I.pet, maxEnemies=I.crowd, mtMaxRows=I.crowd,
     dotTicks=I.ticks, dotWarnings=I.warning, dotChannels=I.drain, dotHealth=I.health, enemyNameHeader=I.tongues,
     enemyLocked=I.lock, dotAuto=I.clock, dotPredict=I.timer, dotConfirmedOnly=I.target,
     compact=I.shards, autoShards=I.burn, sound=I.sound, visual=I.proc,
@@ -697,6 +697,7 @@ function B.multiTarget(page)
     toggle(page,win,'mtHideOOC',L.mtHideOOC,nil,mtBool('multiDotHideOutOfCombat'))
     slider(page,win,'mtScale',L.scale,70,160,5,{function() return math.floor(p().multiDotScale*100+0.5) end,
         function(v) p().multiDotScale=v/100; apply() end},pct)
+    slider(page,win,'mtMaxRows',L.maxEnemies,1,16,1,{function() return p().maxRows end,function(v) p().maxRows=math.floor(v); apply() end})
     buttonRow(page,win,{
         {label=L.mtResetPos,key='mtResetPos',icon=I.move,when=function() return not A.combat() end,fn=function()
             if A.combat() then S.print(L.combat); return end

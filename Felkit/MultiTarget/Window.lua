@@ -25,6 +25,11 @@ local visibilityDriver = false
 local built, pending, auraWarning, failed = false, false, false, false
 local buildCount = 0
 local ROWS = 16
+-- How many enemies get a row, as set on the Frame tab (16 at most).
+local function Shown()
+    local n = S.db and S.db.multiTarget and tonumber(S.db.multiTarget.maxRows)
+    return n and math.max(1, math.min(ROWS, math.floor(n))) or ROWS
+end
 local SOURCE_UNITS = {}
 for i = 1, ROWS do SOURCE_UNITS[#SOURCE_UNITS + 1] = "nameplate" .. i end
 SOURCE_UNITS[#SOURCE_UNITS + 1] = "target"
@@ -152,7 +157,7 @@ end
 local lastSeen = {}
 local damage
 local identity = WH.MultiTargetIdentity.New(function() return rows end,
-    SPELLS, ROWS, Plain, function(guid, name, row)
+    SPELLS, Shown, Plain, function(guid, name, row)
         lastSeen[guid] = { name = name, seen = GetTime(),
             health = row.snapshotHealth, maximum = row.snapshotMaximum,
             percent = row.snapshotPercent, portrait = row.snapshotPortrait }
@@ -219,7 +224,7 @@ local function UpdateGhostRows()
         return a.seen > b.seen
     end)
     for i, row in ipairs(ghostRows) do
-        local ghost = i <= ROWS - liveCount and candidates[i]
+        local ghost = i <= Shown() - liveCount and candidates[i]
         if ghost then
             -- Name, health and portrait are the last-seen snapshot: set once per ghost.
             local fresh = row.ghostGuid ~= ghost.guid or not row.present

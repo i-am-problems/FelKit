@@ -485,7 +485,7 @@ function WH.MultiTargetIdentity.New(getRows, spells, rowLimit, plain,
                         end
                     end
                 end
-                if duplicate or count >= ROWS then
+                if duplicate or count >= ROWS() then
                     row.present = false
                     row.display:SetAlpha(0)
                 else
