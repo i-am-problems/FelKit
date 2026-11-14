@@ -14,6 +14,7 @@ local status
 local damageDebug = true
 local mover
 local unlockOverlay
+local shiftLayer
 local scrollFrame, scrollContent, scrollBar
 local liveContent, previewContent
 local previewOn, previewRows = false, {}
@@ -578,6 +579,36 @@ local function Build()
         SavePosition(); Position()
     end)
     unlockOverlay:Hide()
+    -- Shift held over the window: drag it, locked or not, out of combat. The
+    -- layer only takes the mouse while Shift is down, so clicks pass through.
+    shiftLayer = CreateFrame("Frame", nil, root)
+    shiftLayer:SetAllPoints(root)
+    shiftLayer:SetFrameStrata("HIGH")
+    shiftLayer:EnableMouse(true)
+    shiftLayer:RegisterForDrag("LeftButton")
+    local shiftVeil = shiftLayer:CreateTexture(nil, "BACKGROUND")
+    shiftVeil:SetAllPoints(); shiftVeil:SetColorTexture(.45, .22, .75, .18); shiftVeil:Hide()
+    shiftLayer:SetScript("OnEnter", function() shiftVeil:Show() end)
+    shiftLayer:SetScript("OnLeave", function() shiftVeil:Hide() end)
+    local function shiftState()
+        if shiftLayer.moving then return end
+        local on = S.db.multiTarget.shiftDrag ~= false and IsShiftKeyDown and IsShiftKeyDown()
+            and Safe() and root:IsVisible()
+        shiftLayer:SetShown(on and true or false)
+    end
+    shiftLayer:SetScript("OnDragStart", function()
+        if Safe() then shiftLayer.moving = true; root:StartMoving() end
+    end)
+    shiftLayer:SetScript("OnDragStop", function()
+        shiftLayer.moving = nil
+        root:StopMovingOrSizing()
+        if Safe() then SavePosition(); Position() end
+        shiftState()
+    end)
+    shiftLayer:Hide()
+    local watch = CreateFrame("Frame")
+    for _, e in ipairs({"MODIFIER_STATE_CHANGED", "PLAYER_REGEN_DISABLED"}) do pcall(watch.RegisterEvent, watch, e) end
+    watch:SetScript("OnEvent", shiftState)
     close = CreateFrame("Button", FrameName("FelkitWHMultiTargetClose"), root)
     close:SetSize(27, 27)
     close:SetPoint("TOPRIGHT", root, "TOPRIGHT", -3, -2)

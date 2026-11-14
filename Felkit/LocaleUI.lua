@@ -694,10 +694,14 @@ en.mtCardPlace="Position"
 en.mtPlaceHelp="Unlock to drag the window, then lock it."
 en.mtLocked="Lock window"
 en.mtMoveHint="Drag to move"
+en.mtShiftDrag="Shift-drag to move"
+en.mtShiftDragHelp="Hold Shift and drag the window to move it, even while it is locked. Not during combat."
 fr.mtCardPlace="Position"
 fr.mtPlaceHelp="Déverrouillez pour déplacer la fenêtre, puis verrouillez-la."
 fr.mtLocked="Verrouiller la fenêtre"
 fr.mtMoveHint="Glisser pour déplacer"
+fr.mtShiftDrag="Maj-glisser pour déplacer"
+fr.mtShiftDragHelp="Maintenez Maj et faites glisser la fenêtre pour la déplacer, même verrouillée. Pas en combat."
 for k,v in pairs(en) do S.Locales.en[k]=v end
 for k,v in pairs(fr) do S.Locales.fr[k]=v end
 S.applyLocale()

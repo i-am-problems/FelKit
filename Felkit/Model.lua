@@ -110,7 +110,7 @@ function M.multiTarget(old)
         healthHeight=math.floor(M.number(old.healthHeight,8,40,25)),
         -- 0.7.1: denser tables, bar height, click to target, Does It Die look.
         spacing=math.floor(M.number(old.spacing,0,16,4)),barHeight=math.floor(M.number(old.barHeight,8,30,12)),
-        clickTarget=old.clickTarget~=false,
+        clickTarget=old.clickTarget~=false,shiftDrag=old.shiftDrag~=false,
         -- 0.7.2: health colour and how the target stands out.
         healthColor=M.choice(old.healthColor,{'green','red','reaction'},'red'),
         selectStyle=M.choice(old.selectStyle,{'line','outline','fill','health'},'line'),

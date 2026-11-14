@@ -599,6 +599,7 @@ function B.multiTarget(page)
     display:Card(L.cardPreviewBars,L.mtPreviewHelp,nil,I.eye)
     local place=display:Card(L.mtCardPlace,L.mtPlaceHelp,nil,I.move)
     toggle(page,place,'mtLocked',L.mtLocked,nil,mtBool('locked'))
+    toggle(page,place,'mtShiftDrag',L.mtShiftDrag,L.mtShiftDragHelp,mtBool('shiftDrag'))
     local dots=display:Card(L.mtCardDots,L.mtDotsHelp,nil,I.timer)
     segment(page,dots,'mtDotStyle',nil,{{value='hud',label='Warlock HUD',tip=L.mtStyleHudHelp,glyph='icons'},
         {value='equal',label=L.mtStyleEqual,tip=L.mtStyleEqualHelp,glyph='bars'},
