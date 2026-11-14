@@ -6,6 +6,7 @@ local T,A=S.Theme,S.API
 local I=T.I
 local L
 local W,H,SIDE=900,620,214
+local MIN_W,MIN_H=800,560
 local CONTENT_W=W-SIDE-1
 local PAGE_W=CONTENT_W-46
 local HEADER_H=82
@@ -329,8 +330,8 @@ local function newPage(def)
         O.controls['tabs_'..def.key]=page.tabs
     end
     local rule=T.rule(f,CONTENT_W-48); rule:SetPoint('TOPLEFT',24,-(top-8))
-    page.scroll,page.child=T.scroll(f,PAGE_W+10,H-36-top-14)
-    page.scroll:SetPoint('TOPLEFT',24,-top)
+    page.scroll,page.child=T.scroll(f,PAGE_W+10,O.frame:GetHeight()-36-top-14)
+    page.scroll:SetPoint('TOPLEFT',24,-top); page.scroll:SetPoint('BOTTOMLEFT',f,'BOTTOMLEFT',24,14)
     page.top=top
     O.pages[def.key]=page
     return page
@@ -1087,6 +1088,8 @@ O.NAV={
 function O.create()
     L=S.L
     local f=T.window('FelkitWindow',W,H,L.title,'main'); O.frame=f
+    T.resizable(f,'main',W,H,MIN_W,MIN_H,function() O.resized() end,function() O.rebuild() end)
+    CONTENT_W=f:GetWidth()-SIDE-1; PAGE_W=CONTENT_W-46
     f:Hide()
     f.version=T.text(f.titleBar,11,T.c.faint); f.version:SetPoint('RIGHT',f.close,'LEFT',-10,0); f.version:SetJustifyH('RIGHT')
     local get=C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
@@ -1128,6 +1131,25 @@ function O.create()
     f:SetScript('OnHide',function() if S.previewOn then S.setPreview(false) end
         if S.WH and S.WH.MultiTarget then S.WH.MultiTarget.SetPreview(false) end end)
     O.open('home',true)
+end
+-- While the corner is dragged the pages only grow taller; once it is let go,
+-- a new width rebuilds the pages already opened at that width.
+function O.resized()
+    for _,p in pairs(O.pages) do p.scroll:ScrollTo(p.scroll.offset or 0) end
+end
+function O.rebuild()
+    local w=O.frame:GetWidth()-SIDE-1
+    if math.abs(w-CONTENT_W)<1 then O.resized(); return end
+    CONTENT_W=w; PAGE_W=CONTENT_W-46
+    local current=O.current and O.current.key
+    local tabs={}
+    for key,p in pairs(O.pages) do tabs[key]=p.tab; p.frame:Hide() end
+    O.pages={}; O.current=nil
+    for key in pairs(tabs) do
+        local page=O.page(key)
+        if page then page.frame:Hide(); page.tab=tabs[key] end
+    end
+    O.open(current or 'home',true,current and tabs[current])
 end
 function O.syncNav()
     for _,b in ipairs(O.nav or {}) do

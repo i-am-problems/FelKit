@@ -432,6 +432,49 @@ function T.scroll(parent,width,height)
     sf:SetScript('OnMouseWheel',function(self,delta) self:ScrollTo((self.offset or 0)-delta*48) end)
     return sf,child
 end
+-- A grip in the bottom-right corner that resizes the window. The size is saved
+-- next to its position. live runs while dragging, done once it is let go.
+function T.resizable(f,key,w,h,minW,minH,live,done)
+    if f.SetResizable then f:SetResizable(true) end
+    local function bounds()
+        local maxW=math.max(minW,math.floor(UIParent:GetWidth()-20))
+        local maxH=math.max(minH,math.floor(UIParent:GetHeight()-20))
+        return maxW,maxH
+    end
+    local maxW,maxH=bounds()
+    if f.SetResizeBounds then f:SetResizeBounds(minW,minH,maxW,maxH)
+    else
+        if f.SetMinResize then f:SetMinResize(minW,minH) end
+        if f.SetMaxResize then f:SetMaxResize(maxW,maxH) end
+    end
+    local saved=S.db and S.db.positions[key..'Size']
+    if saved then f:SetSize(math.max(minW,math.min(maxW,saved.x)),math.max(minH,math.min(maxH,saved.y))) end
+    local g=CreateFrame('Button',nil,f); g:SetSize(16,16); g:SetPoint('BOTTOMRIGHT',-3,3)
+    g:SetFrameLevel(f:GetFrameLevel()+20); f.grip=g
+    g:SetNormalTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up')
+    g:SetPushedTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down')
+    g:SetHighlightTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight')
+    g:RegisterForClicks('RightButtonUp')
+    local function finish()
+        S.db.positions[key..'Size']={x=math.floor(f:GetWidth()+.5),y=math.floor(f:GetHeight()+.5)}
+        f.savePlace()
+        if done then done() end
+    end
+    g:SetScript('OnMouseDown',function(_,button)
+        if button~='LeftButton' then return end
+        f.sizing=true; f:StartSizing('BOTTOMRIGHT')
+    end)
+    g:SetScript('OnMouseUp',function(_,button)
+        if button~='LeftButton' or not f.sizing then return end
+        f.sizing=false; f:StopMovingOrSizing(); finish()
+    end)
+    g:SetScript('OnClick',function() f:SetSize(w,h); finish() end)
+    g:SetScript('OnEnter',function(self)
+        GameTooltip:SetOwner(self,'ANCHOR_RIGHT'); GameTooltip:SetText(S.L.resizeHint or '',1,1,1,1,true); GameTooltip:Show()
+    end)
+    g:SetScript('OnLeave',function() GameTooltip:Hide() end)
+    f:HookScript('OnSizeChanged',function() if live then live() end end)
+end
 -- Draggable window chrome with title bar and close button.
 function T.window(name,w,h,title,key)
     local f=CreateFrame('Frame',name,UIParent); f:SetSize(w,h); f:SetClampedToScreen(true)
@@ -450,14 +493,14 @@ function T.window(name,w,h,title,key)
     f.close.label:SetFont(T.font(),16,'')
     f.titleBar:EnableMouse(true); f.titleBar:RegisterForDrag('LeftButton')
     f.titleBar:SetScript('OnDragStart',function() if not InCombatLockdown() then f:StartMoving() end end)
-    f.titleBar:SetScript('OnDragStop',function()
-        f:StopMovingOrSizing()
-        if key and S.db then
-            local x,y=f:GetCenter(); local px,py=UIParent:GetCenter()
-            local ratio=f:GetEffectiveScale()/UIParent:GetEffectiveScale()
-            S.db.positions[key]={x=x-px/ratio,y=y-py/ratio}
-        end
-    end)
+    function f.savePlace()
+        if not key or not S.db then return end
+        local x,y=f:GetCenter(); local px,py=UIParent:GetCenter()
+        local ratio=f:GetEffectiveScale()/UIParent:GetEffectiveScale()
+        S.db.positions[key]={x=x-px/ratio,y=y-py/ratio}
+        f:ClearAllPoints(); f:SetPoint('CENTER',UIParent,'CENTER',S.db.positions[key].x,S.db.positions[key].y)
+    end
+    f.titleBar:SetScript('OnDragStop',function() f:StopMovingOrSizing(); f.savePlace() end)
     if key and S.db and S.db.positions[key] then
         local p=S.db.positions[key]; f:SetPoint('CENTER',UIParent,'CENTER',p.x,p.y)
     else f:SetPoint('CENTER') end
